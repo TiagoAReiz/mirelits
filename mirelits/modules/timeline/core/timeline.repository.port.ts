@@ -3,14 +3,14 @@ import type { TimelineEntry } from './timeline.entity'
 export type CreateTimelineEntryInput = {
   title: string
   description?: string
-  year: number
+  year: string
   position: number
 }
 
 export type UpdateTimelineEntryInput = {
   title?: string
   description?: string | null
-  year?: number
+  year?: string
   position?: number
 }
 

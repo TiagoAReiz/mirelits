@@ -24,10 +24,14 @@ model Project {
   id           String        @id @default(cuid())
   title        String
   subtitle     String?
+  category     String?
+  year         String?
   description  String?
   status       ProjectStatus @default(DRAFT)
   pinned       Boolean       @default(false)
   pinOrder     Int?
+  pinLabel     String?
+  sortOrder    Int?
   coverPhotoId String?       @unique
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -42,6 +46,8 @@ model Photo {
   storagePath String
   url         String
   position    Int
+  ratio       Float?
+  hue         String?
   createdAt   DateTime @default(now())
 
   project        Project  @relation("ProjectPhotos", fields: [projectId], references: [id], onDelete: Cascade)
@@ -50,27 +56,29 @@ model Photo {
 
 model ArtistProfile {
   id              String   @id @default(cuid())
-  name            String
-  shortBio        String
-  fullBio         String
+  name            String   @default("mirelits")
+  handle          String?  @default("@mirelits")
+  tagline         String?  @default("Ilustradora & quadrinista")
+  location        String?  @default("São Paulo, Brasil")
+  email           String?  @default("ola@mirelits.com")
+  shortBio        String   @default("")
+  fullBio         String   @default("")
   profilePhotoUrl String?
   logoUrl         String?
+  profileHue      String   @default("laranja")
+  colorBg         String?
+  colorInk        String?
+  colorAcc1       String?
+  colorAcc2       String?
+  colorAcc3       String?
   updatedAt       DateTime @updatedAt
-}
-
-model SiteSettings {
-  id             String   @id @default(cuid())
-  primaryColor   String   @default("#000000")
-  secondaryColor String   @default("#ffffff")
-  accentColor    String   @default("#ff0000")
-  updatedAt      DateTime @updatedAt
 }
 
 model TimelineEntry {
   id          String   @id @default(cuid())
   title       String
   description String?
-  year        Int
+  year        String
   position    Int
   createdAt   DateTime @default(now())
 }

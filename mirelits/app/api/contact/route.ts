@@ -1,11 +1,38 @@
+import { Resend } from 'resend'
+
+const resend = new Resend(process.env.RESEND_API_KEY)
+
 export async function POST(req: Request) {
   const body = await req.json()
-  const { name, email, message } = body
+  const { name, email, projectType, message } = body
 
   if (!name || !email || !message) {
     return Response.json({ error: 'name, email e message são obrigatórios' }, { status: 400 })
   }
 
-  // Integração com serviço de email (Resend, etc.) a implementar separadamente
-  return Response.json({ ok: true })
+  const to = process.env.CONTACT_EMAIL ?? process.env.ADMIN_EMAIL
+  if (!to) {
+    // Se não há email configurado, apenas retorna ok (falha silenciosa em dev)
+    console.warn('[contact] CONTACT_EMAIL ou ADMIN_EMAIL não configurado')
+    return Response.json({ ok: true })
+  }
+
+  try {
+    await resend.emails.send({
+      from: process.env.RESEND_FROM ?? 'noreply@mirelits.com',
+      to,
+      replyTo: email,
+      subject: `Nova proposta de projeto — ${projectType ?? 'Geral'}`,
+      html: `
+        <p><strong>De:</strong> ${name} &lt;${email}&gt;</p>
+        <p><strong>Tipo de projeto:</strong> ${projectType ?? '—'}</p>
+        <hr />
+        <p>${message.replace(/\n/g, '<br />')}</p>
+      `,
+    })
+    return Response.json({ ok: true })
+  } catch (e) {
+    console.error('[contact] Resend error:', e)
+    return Response.json({ error: 'Falha ao enviar e-mail.' }, { status: 500 })
+  }
 }

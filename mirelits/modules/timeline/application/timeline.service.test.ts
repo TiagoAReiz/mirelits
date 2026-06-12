@@ -13,7 +13,7 @@ const mockRepo: ITimelineRepository = {
 beforeEach(() => vi.clearAllMocks())
 
 const baseEntry = {
-  id: 't1', title: 'Formação', description: null, year: 2018, position: 0, createdAt: new Date(),
+  id: 't1', title: 'Formação', description: null, year: '2018', position: 0, createdAt: new Date(),
 }
 
 describe('TimelineService', () => {
@@ -27,8 +27,8 @@ describe('TimelineService', () => {
   it('create chama repo.create com os dados', async () => {
     vi.mocked(mockRepo.create).mockResolvedValue(baseEntry)
     const service = new TimelineService(mockRepo)
-    await service.create({ title: 'Formação', year: 2018, position: 0 })
-    expect(mockRepo.create).toHaveBeenCalledWith({ title: 'Formação', year: 2018, position: 0 })
+    await service.create({ title: 'Formação', year: '2018', position: 0 })
+    expect(mockRepo.create).toHaveBeenCalledWith({ title: 'Formação', year: '2018', position: 0 })
   })
 
   it('delete chama repo.delete com o id', async () => {

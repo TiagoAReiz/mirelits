@@ -3,5 +3,4 @@ export type SiteSettings = {
   primaryColor: string
   secondaryColor: string
   accentColor: string
-  updatedAt: Date
 }
