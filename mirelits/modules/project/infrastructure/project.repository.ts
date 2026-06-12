@@ -13,7 +13,7 @@ export class PrismaProjectRepository implements IProjectRepository {
       where: { status: 'PUBLISHED' },
       orderBy: [{ pinned: 'desc' }, { pinOrder: 'asc' }, { createdAt: 'desc' }],
       select: {
-        id: true, title: true, subtitle: true, pinned: true, pinOrder: true,
+        id: true, title: true, subtitle: true, status: true, pinned: true, pinOrder: true,
         coverPhoto: { select: { url: true } },
       },
     })
