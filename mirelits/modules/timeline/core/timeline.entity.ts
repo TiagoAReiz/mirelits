@@ -2,7 +2,7 @@ export type TimelineEntry = {
   id: string
   title: string
   description: string | null
-  year: number
+  year: string
   position: number
   createdAt: Date
 }
