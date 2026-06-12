@@ -30,6 +30,8 @@ export const metadata: Metadata = {
   description: 'Portfólio de ilustração e quadrinhos',
 }
 
+export const dynamic = 'force-dynamic'
+
 async function getTheme() {
   try {
     const profile = await prisma.artistProfile.findFirst({
