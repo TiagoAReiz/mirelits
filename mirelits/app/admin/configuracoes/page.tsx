@@ -4,6 +4,7 @@ import { ConfigEditor } from './config-editor'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Configurações — Admin · mirelits' }
+export const dynamic = 'force-dynamic'
 
 async function getData() {
   const [profile, timeline] = await Promise.all([
