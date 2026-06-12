@@ -2,7 +2,7 @@ import sharp from 'sharp'
 import type { IArtistProfileStorage } from '../core/artist-profile.storage.port'
 import { supabase } from '@/lib/supabase'
 
-const BUCKET = 'artist-assets'
+const BUCKET = 'mirelits'
 
 export class SupabaseArtistProfileStorageAdapter implements IArtistProfileStorage {
   async uploadProfilePhoto(file: Buffer, filename: string): Promise<string> {

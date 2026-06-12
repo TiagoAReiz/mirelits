@@ -20,7 +20,7 @@ const mockStorage: IPhotoStorage = {
 beforeEach(() => vi.clearAllMocks())
 
 const basePhoto = {
-  id: 'ph1', projectId: 'p1', storagePath: 'project-photos/p1/1.webp',
+  id: 'ph1', projectId: 'p1', storagePath: 'mirelits/p1/1.webp',
   url: 'https://cdn.example.com/1.webp', position: 0, createdAt: new Date(),
 }
 
@@ -28,7 +28,7 @@ describe('PhotoService', () => {
   it('upload comprime, sobe para storage e persiste no repositório', async () => {
     vi.mocked(mockRepo.findByProject).mockResolvedValue([])
     vi.mocked(mockStorage.upload).mockResolvedValue({
-      path: 'project-photos/p1/1.webp',
+      path: 'mirelits/p1/1.webp',
       url: 'https://cdn.example.com/1.webp',
     })
     vi.mocked(mockRepo.create).mockResolvedValue(basePhoto)
@@ -39,7 +39,7 @@ describe('PhotoService', () => {
     expect(mockStorage.upload).toHaveBeenCalledOnce()
     expect(mockRepo.create).toHaveBeenCalledWith({
       projectId: 'p1',
-      storagePath: 'project-photos/p1/1.webp',
+      storagePath: 'mirelits/p1/1.webp',
       url: 'https://cdn.example.com/1.webp',
       position: 0,
     })
@@ -54,7 +54,7 @@ describe('PhotoService', () => {
     const service = new PhotoService(mockRepo, mockStorage)
     await service.delete('ph1')
 
-    expect(mockStorage.delete).toHaveBeenCalledWith('project-photos/p1/1.webp', 'project-photos')
+    expect(mockStorage.delete).toHaveBeenCalledWith('mirelits/p1/1.webp', 'mirelits')
     expect(mockRepo.delete).toHaveBeenCalledWith('ph1')
   })
 
@@ -73,7 +73,7 @@ describe('PhotoService', () => {
     const service = new PhotoService(mockRepo, mockStorage)
     await service.deleteByProject('p1')
 
-    expect(mockStorage.delete).toHaveBeenCalledWith('project-photos/p1/1.webp', 'project-photos')
+    expect(mockStorage.delete).toHaveBeenCalledWith('mirelits/p1/1.webp', 'mirelits')
     expect(mockRepo.deleteAllByProject).toHaveBeenCalledWith('p1')
   })
 })
