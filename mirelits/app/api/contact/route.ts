@@ -1,7 +1,5 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export async function POST(req: Request) {
   const body = await req.json()
   const { name, email, projectType, message } = body
@@ -17,7 +15,14 @@ export async function POST(req: Request) {
     return Response.json({ ok: true })
   }
 
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.warn('[contact] RESEND_API_KEY não configurado. Simulação de envio com sucesso.')
+    return Response.json({ ok: true })
+  }
+
   try {
+    const resend = new Resend(apiKey)
     await resend.emails.send({
       from: process.env.RESEND_FROM ?? 'noreply@mirelits.com',
       to,

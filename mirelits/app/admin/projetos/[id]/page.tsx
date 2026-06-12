@@ -4,6 +4,8 @@ import { ProjectEditor } from '../project-editor'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 
+export const dynamic = 'force-dynamic'
+
 interface Props {
   params: Promise<{ id: string }>
 }

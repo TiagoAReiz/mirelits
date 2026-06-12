@@ -5,6 +5,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Projetos — Admin · mirelits' }
+export const dynamic = 'force-dynamic'
 
 async function getProjects() {
   return prisma.project.findMany({

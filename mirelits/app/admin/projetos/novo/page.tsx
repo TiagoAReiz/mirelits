@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = { title: 'Novo projeto — Admin · mirelits' }
+export const dynamic = 'force-dynamic'
 
 async function getArtistName() {
   try {
