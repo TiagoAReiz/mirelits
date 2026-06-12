@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id           String        @id @default(cuid())
+  title        String
+  subtitle     String?
+  description  String?
+  status       ProjectStatus @default(DRAFT)
+  pinned       Boolean       @default(false)
+  pinOrder     Int?
+  coverPhotoId String?       @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  photos     Photo[]  @relation("ProjectPhotos")
+  coverPhoto Photo?   @relation("CoverPhoto", fields: [coverPhotoId], references: [id], onDelete: SetNull)
+}
+
+model Photo {
+  id          String   @id @default(cuid())
+  projectId   String
+  storagePath String
+  url         String
+  position    Int
+  createdAt   DateTime @default(now())
+
+  project        Project  @relation("ProjectPhotos", fields: [projectId], references: [id], onDelete: Cascade)
+  coverOfProject Project? @relation("CoverPhoto")
+}
+
+model ArtistProfile {
+  id              String   @id @default(cuid())
+  name            String
+  shortBio        String
+  fullBio         String
+  profilePhotoUrl String?
+  logoUrl         String?
+  updatedAt       DateTime @updatedAt
+}
+
+model SiteSettings {
+  id             String   @id @default(cuid())
+  primaryColor   String   @default("#000000")
+  secondaryColor String   @default("#ffffff")
+  accentColor    String   @default("#ff0000")
+  updatedAt      DateTime @updatedAt
+}
+
+model TimelineEntry {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  year        Int
+  position    Int
+  createdAt   DateTime @default(now())
+}
