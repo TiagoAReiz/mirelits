@@ -1,7 +1,7 @@
 import type { IPhotoRepository, ReorderPhotosInput } from '../core/photo.repository.port'
 import type { IPhotoStorage } from '../core/photo.storage.port'
 
-const BUCKET = 'project-photos'
+const BUCKET = 'mirelits'
 
 export class PhotoService {
   constructor(
