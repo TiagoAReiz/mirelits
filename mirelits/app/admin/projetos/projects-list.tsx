@@ -30,6 +30,7 @@ export function ProjectsList({ initial }: { initial: Project[] }) {
   const [projects, setProjects] = useState(initial)
   const [editLabel, setEditLabel] = useState<string | null>(null)
   const [labelVal, setLabelVal] = useState('')
+  const [publishing, setPublishing] = useState<Set<string>>(new Set())
   const dragIdx = useRef<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
 
@@ -88,6 +89,18 @@ export function ProjectsList({ initial }: { initial: Project[] }) {
     })
   }
 
+  const publishProject = async (id: string) => {
+    setPublishing((s) => new Set(s).add(id))
+    await fetch(`/api/admin/projects/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'PUBLISHED' }),
+    })
+    setProjects((ps) => ps.map((x) => x.id === id ? { ...x, status: 'PUBLISHED' } : x))
+    setPublishing((s) => { const n = new Set(s); n.delete(id); return n })
+    router.refresh()
+  }
+
   const deleteProject = async (id: string, title: string) => {
     if (!confirm(`Excluir "${title}"?`)) return
     setProjects((ps) => ps.filter((x) => x.id !== id))
@@ -133,9 +146,14 @@ export function ProjectsList({ initial }: { initial: Project[] }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <span className="serif" style={{ fontSize: 18, fontWeight: 500 }}>{p.title}</span>
                 {p.status === 'DRAFT' && (
-                  <span className="mono" style={{ fontSize: 9, background: 'var(--line)', color: 'var(--ink-soft)', padding: '2px 7px', borderRadius: 99, letterSpacing: '.06em' }}>
-                    RASCUNHO
-                  </span>
+                  <button
+                    className="draft-chip"
+                    title="Clique para publicar"
+                    disabled={publishing.has(p.id)}
+                    onClick={(e) => { e.stopPropagation(); publishProject(p.id) }}
+                  >
+                    {publishing.has(p.id) ? 'publicando…' : (<><span className="draft-chip__dot" />RASCUNHO</>)}
+                  </button>
                 )}
                 {p.pinned && p.pinLabel && (
                   <span className="mono" style={{ fontSize: 9.5, background: 'var(--acc-1)', color: '#fff', padding: '2px 7px', borderRadius: 99, letterSpacing: '.08em', textTransform: 'uppercase' }}>
