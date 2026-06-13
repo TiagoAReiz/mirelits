@@ -137,6 +137,7 @@ export function ProjectsList({ initial }: { initial: Project[] }) {
                 hue={p.coverPhoto?.hue ?? 'pedra'}
                 ratio={1}
                 showCap={false}
+                sizes="80px"
                 style={{ width: '100%', height: '100%' }}
               />
             </div>

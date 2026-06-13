@@ -130,6 +130,7 @@ export default async function ProjetoPage({ params }: Props) {
                   hue={im.hue ?? 'pedra'}
                   ratio={im.ratio ?? 1}
                   showCap={false}
+                  sizes="(max-width: 760px) 100vw, 940px"
                   style={{ width: '100%', borderRadius: 6, boxShadow: '0 6px 24px color-mix(in oklch, var(--ink) 10%, transparent)' }}
                 />
                 <figcaption className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)', marginTop: 9, letterSpacing: '.06em', textAlign: 'center' }}>

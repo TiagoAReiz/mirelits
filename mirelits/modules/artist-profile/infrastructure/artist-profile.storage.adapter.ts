@@ -19,7 +19,10 @@ export class SupabaseArtistProfileStorageAdapter implements IArtistProfileStorag
   }
 
   async #upload(file: Buffer, path: string): Promise<string> {
-    const compressed = await sharp(file).webp({ quality: 85 }).toBuffer()
+    const compressed = await sharp(file)
+      .resize({ width: 800, withoutEnlargement: true })
+      .webp({ quality: 87 })
+      .toBuffer()
     const { data, error } = await supabase.storage
       .from(BUCKET)
       .upload(path, compressed, { contentType: 'image/webp', upsert: true })

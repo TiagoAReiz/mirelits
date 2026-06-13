@@ -4,7 +4,10 @@ import { supabase } from '@/lib/supabase'
 
 export class SupabasePhotoStorageAdapter implements IPhotoStorage {
   async upload(file: Buffer, filename: string, bucket: string): Promise<{ path: string; url: string }> {
-    const compressed = await sharp(file).webp({ quality: 80 }).toBuffer()
+    const compressed = await sharp(file)
+      .resize({ width: 2400, withoutEnlargement: true })
+      .webp({ quality: 87 })
+      .toBuffer()
     const { data, error } = await supabase.storage
       .from(bucket)
       .upload(filename, compressed, { contentType: 'image/webp', upsert: false })
