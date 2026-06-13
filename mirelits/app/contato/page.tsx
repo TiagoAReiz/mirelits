@@ -19,8 +19,13 @@ async function getProfile() {
   }
 }
 
+async function getSocialLinks() {
+  try { return await prisma.socialLink.findMany({ orderBy: { position: 'asc' } }) }
+  catch { return [] }
+}
+
 export default async function ContatoPage() {
-  const profile = await getProfile()
+  const [profile, socialLinks] = await Promise.all([getProfile(), getSocialLinks()])
   const name = profile?.name ?? 'mirelits'
 
   return (
@@ -31,6 +36,7 @@ export default async function ContatoPage() {
           tagline: profile?.tagline,
           profileHue: profile?.profileHue ?? 'laranja',
           profilePhotoUrl: profile?.profilePhotoUrl,
+          socialLinks,
         }}
       />
 

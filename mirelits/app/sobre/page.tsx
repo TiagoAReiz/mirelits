@@ -3,6 +3,7 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { Avatar } from '@/components/avatar'
 import { SectionLabel } from '@/components/section-label'
+import { SocialIcon } from '@/components/social-icon'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -12,13 +13,14 @@ export const metadata: Metadata = {
 
 async function getData() {
   try {
-    const [profile, timeline] = await Promise.all([
+    const [profile, timeline, socialLinks] = await Promise.all([
       prisma.artistProfile.findFirst(),
       prisma.timelineEntry.findMany({ orderBy: { position: 'asc' } }),
+      prisma.socialLink.findMany({ orderBy: { position: 'asc' } }),
     ])
-    return { profile, timeline }
+    return { profile, timeline, socialLinks }
   } catch {
-    return { profile: null, timeline: [] }
+    return { profile: null, timeline: [], socialLinks: [] }
   }
 }
 
@@ -34,8 +36,13 @@ async function getCategories() {
   }
 }
 
+function hostname(url: string) {
+  try { return new URL(url).hostname.replace('www.', '') }
+  catch { return url }
+}
+
 export default async function SobrePage() {
-  const [{ profile, timeline }, cats] = await Promise.all([getData(), getCategories()])
+  const [{ profile, timeline, socialLinks }, cats] = await Promise.all([getData(), getCategories()])
 
   const name = profile?.name ?? 'mirelits'
   const tagline = profile?.tagline ?? 'Ilustradora & quadrinista'
@@ -50,6 +57,7 @@ export default async function SobrePage() {
           tagline,
           profileHue: profile?.profileHue ?? 'laranja',
           profilePhotoUrl: profile?.profilePhotoUrl,
+          socialLinks,
         }}
       />
 
@@ -122,6 +130,52 @@ export default async function SobrePage() {
                     </div>
                   ))}
                 </div>
+              </div>
+            </section>
+          )}
+
+          {/* redes sociais */}
+          {socialLinks.length > 0 && (
+            <section id="redes" style={{ marginTop: 'clamp(40px,7vw,72px)' }}>
+              <SectionLabel color="var(--acc-2)">Redes & presença online</SectionLabel>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, marginTop: 18 }}>
+                {socialLinks.map((sl) => (
+                  <a
+                    key={sl.id}
+                    href={sl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 10,
+                      padding: '12px 18px', borderRadius: 12,
+                      border: '1px solid var(--line)', background: 'var(--paper)',
+                      color: 'var(--ink)', transition: 'border-color .18s, transform .18s, box-shadow .18s',
+                      textDecoration: 'none',
+                    }}
+                    onMouseEnter={(e) => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.borderColor = 'var(--acc-1)'
+                      el.style.transform = 'translateY(-2px)'
+                      el.style.boxShadow = '0 6px 18px color-mix(in oklch, var(--ink) 8%, transparent)'
+                    }}
+                    onMouseLeave={(e) => {
+                      const el = e.currentTarget as HTMLElement
+                      el.style.borderColor = 'var(--line)'
+                      el.style.transform = 'none'
+                      el.style.boxShadow = 'none'
+                    }}
+                  >
+                    <span style={{ color: 'var(--acc-1)', display: 'flex' }}>
+                      <SocialIcon platform={sl.platform} size={20} />
+                    </span>
+                    <div>
+                      <div className="serif" style={{ fontSize: 16, fontWeight: 500, lineHeight: 1.1 }}>{sl.label}</div>
+                      <div className="mono" style={{ fontSize: 10, color: 'var(--ink-faint)', letterSpacing: '.04em', marginTop: 2 }}>
+                        {hostname(sl.url)}
+                      </div>
+                    </div>
+                  </a>
+                ))}
               </div>
             </section>
           )}

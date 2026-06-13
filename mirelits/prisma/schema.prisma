@@ -82,3 +82,12 @@ model TimelineEntry {
   position    Int
   createdAt   DateTime @default(now())
 }
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  platform  String
+  label     String
+  url       String
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+}
