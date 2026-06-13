@@ -44,10 +44,18 @@ const HUE_COLORS: Record<string, string> = {
 }
 
 const COLOR_PRESETS = [
-  { id: 'atele', name: 'Ateliê', bg: '0.984 0.006 85', ink: '0.215 0.012 65', acc1: '0.685 0.175 45', acc2: '0.66 0.135 158', acc3: '0.555 0.16 295' },
-  { id: 'tinta', name: 'Tinta',  bg: '0.97 0.005 260', ink: '0.20 0.012 265', acc1: '0.68 0.14 245',  acc2: '0.70 0.14 0',   acc3: '0.66 0.14 158' },
-  { id: 'argila',name: 'Argila', bg: '0.96 0.018 55',  ink: '0.28 0.025 50',  acc1: '0.60 0.15 25',   acc2: '0.62 0.12 145', acc3: '0.50 0.13 280' },
-  { id: 'noite', name: 'Noite',  bg: '0.15 0.015 255', ink: '0.88 0.008 75',  acc1: '0.80 0.16 55',   acc2: '0.72 0.15 165', acc3: '0.65 0.17 305' },
+  { id: 'atele', name: 'Ateliê', bg: 'oklch(0.984 0.006 85)', ink: 'oklch(0.215 0.012 65)', acc1: 'oklch(0.685 0.175 45)', acc2: 'oklch(0.66 0.135 158)', acc3: 'oklch(0.555 0.16 295)' },
+  { id: 'tinta', name: 'Tinta',  bg: 'oklch(0.97 0.005 260)', ink: 'oklch(0.20 0.012 265)', acc1: 'oklch(0.68 0.14 245)',  acc2: 'oklch(0.70 0.14 0)',   acc3: 'oklch(0.66 0.14 158)' },
+  { id: 'argila',name: 'Argila', bg: 'oklch(0.96 0.018 55)',  ink: 'oklch(0.28 0.025 50)',  acc1: 'oklch(0.60 0.15 25)',   acc2: 'oklch(0.62 0.12 145)', acc3: 'oklch(0.50 0.13 280)' },
+  { id: 'noite', name: 'Noite',  bg: 'oklch(0.15 0.015 255)', ink: 'oklch(0.88 0.008 75)',  acc1: 'oklch(0.80 0.16 55)',   acc2: 'oklch(0.72 0.15 165)', acc3: 'oklch(0.65 0.17 305)' },
+]
+
+const COLOR_FIELDS: { key: keyof ProfileData; label: string; cssVar: string }[] = [
+  { key: 'colorBg',  label: 'Fundo',  cssVar: '--bg'    },
+  { key: 'colorInk', label: 'Texto',  cssVar: '--ink'   },
+  { key: 'colorAcc1',label: 'Cor 1',  cssVar: '--acc-1' },
+  { key: 'colorAcc2',label: 'Cor 2',  cssVar: '--acc-2' },
+  { key: 'colorAcc3',label: 'Cor 3',  cssVar: '--acc-3' },
 ]
 
 function card(extra?: React.CSSProperties): React.CSSProperties {
@@ -120,13 +128,30 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: P
     }
   }
 
+  /* ── apply a single color variable (with derived vars) ── */
+  const applyColor = (key: keyof ProfileData, cssVar: string, val: string) => {
+    setProfile((p) => ({ ...p, [key]: val }))
+    const r = document.documentElement.style
+    r.setProperty(cssVar, val)
+    if (key === 'colorInk') {
+      r.setProperty('--ink-soft',  `oklch(from ${val} calc(l + 0.25) c h)`)
+      r.setProperty('--ink-faint', `oklch(from ${val} calc(l + 0.44) c h)`)
+    }
+    if (key === 'colorAcc1') {
+      r.setProperty('--acc-1-ink', `oklch(from ${val} calc(l - 0.28) c h)`)
+    }
+  }
+
   /* ── color preset ── */
   const applyPreset = (pre: typeof COLOR_PRESETS[0]) => {
     setProfile((p) => ({ ...p, colorBg: pre.bg, colorInk: pre.ink, colorAcc1: pre.acc1, colorAcc2: pre.acc2, colorAcc3: pre.acc3 }))
-    // instant CSS preview
     const r = document.documentElement.style
-    r.setProperty('--bg', `oklch(${pre.bg})`); r.setProperty('--ink', `oklch(${pre.ink})`)
-    r.setProperty('--acc-1', `oklch(${pre.acc1})`); r.setProperty('--acc-2', `oklch(${pre.acc2})`); r.setProperty('--acc-3', `oklch(${pre.acc3})`)
+    r.setProperty('--bg', pre.bg); r.setProperty('--ink', pre.ink)
+    r.setProperty('--ink-soft',  `oklch(from ${pre.ink} calc(l + 0.25) c h)`)
+    r.setProperty('--ink-faint', `oklch(from ${pre.ink} calc(l + 0.44) c h)`)
+    r.setProperty('--acc-1', pre.acc1)
+    r.setProperty('--acc-1-ink', `oklch(from ${pre.acc1} calc(l - 0.28) c h)`)
+    r.setProperty('--acc-2', pre.acc2); r.setProperty('--acc-3', pre.acc3)
   }
 
   /* ── timeline ── */
@@ -202,15 +227,43 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: P
             const on = profile.colorBg === pre.bg && profile.colorAcc1 === pre.acc1
             return (
               <button key={pre.id} onClick={() => applyPreset(pre)}
-                style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 10, borderRadius: 10, cursor: 'pointer', background: `oklch(${pre.bg})`, border: `2px solid ${on ? 'var(--acc-1)' : 'var(--line)'}`, minWidth: 96 }}>
+                style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 10, borderRadius: 10, cursor: 'pointer', background: pre.bg, border: `2px solid ${on ? 'var(--acc-1)' : 'var(--line)'}`, minWidth: 96 }}>
                 <div style={{ display: 'flex', gap: 5 }}>
-                  {[pre.acc1, pre.acc2, pre.acc3].map((c, i) => <span key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: `oklch(${c})` }} />)}
+                  {[pre.acc1, pre.acc2, pre.acc3].map((c, i) => <span key={i} style={{ width: 18, height: 18, borderRadius: '50%', background: c }} />)}
                 </div>
-                <span className="mono" style={{ fontSize: 11, color: `oklch(${pre.ink})`, letterSpacing: '.04em' }}>{pre.name}</span>
+                <span className="mono" style={{ fontSize: 11, color: pre.ink, letterSpacing: '.04em' }}>{pre.name}</span>
               </button>
             )
           })}
         </div>
+
+        <div style={{ borderTop: '1px solid var(--line-soft)', paddingTop: 16, marginBottom: 16 }}>
+          <span className="label" style={{ display: 'block', marginBottom: 12 }}>Personalizar cores individualmente</span>
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            {COLOR_FIELDS.map(({ key, label, cssVar }) => {
+              const val = profile[key] as string | null
+              const isHex = !!val?.startsWith('#')
+              return (
+                <label key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                  <div style={{ position: 'relative', width: 48, height: 48, borderRadius: 10, overflow: 'hidden', border: '2px solid var(--line)', flexShrink: 0 }}>
+                    {/* swatch preview using CSS variable so it always reflects current live value */}
+                    <div style={{ position: 'absolute', inset: 0, background: val
+                      ? (val.startsWith('#') || val.startsWith('oklch') || val.startsWith('rgb') ? val : `oklch(${val})`)
+                      : `var(${cssVar})` }} />
+                    <input
+                      type="color"
+                      value={isHex ? val! : '#ffffff'}
+                      onChange={(e) => applyColor(key, cssVar, e.target.value)}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }}
+                    />
+                  </div>
+                  <span className="mono" style={{ fontSize: 10, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--ink-soft)' }}>{label}</span>
+                </label>
+              )
+            })}
+          </div>
+        </div>
+
         <button className="btn btn--ghost btn--sm" onClick={saveProfile} disabled={saving}>
           {saving ? 'Salvando…' : 'Salvar cores'}
         </button>

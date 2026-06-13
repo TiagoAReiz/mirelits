@@ -15,8 +15,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!isAdminPath || isLoginPage) return true
       if (!isLoggedIn) return false
 
-      const adminEmail = process.env.ADMIN_EMAIL
-      if (adminEmail && session.user?.email !== adminEmail) {
+      const adminEmails = (process.env.ADMIN_EMAIL ?? '')
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .filter(Boolean)
+      if (adminEmails.length > 0 && !adminEmails.includes((session.user?.email ?? '').toLowerCase())) {
         return Response.redirect(new URL('/admin/login?error=access_denied', nextUrl))
       }
 
