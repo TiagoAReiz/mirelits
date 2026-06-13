@@ -13,7 +13,7 @@ export async function PUT(req: Request) {
   if (error) return error
 
   const body = await req.json()
-  const { handle, tagline, location, email, profileHue, colorBg, colorInk, colorAcc1, colorAcc2, colorAcc3 } = body
+  const { handle, tagline, location, email, profileHue, profilePhotoUrl, colorBg, colorInk, colorAcc1, colorAcc2, colorAcc3 } = body
 
   // Consolidate database by removing any duplicate profile records without the 'singleton' ID
   await prisma.artistProfile.deleteMany({
@@ -41,6 +41,7 @@ export async function PUT(req: Request) {
       ...(location !== undefined && { location }),
       ...(email !== undefined && { email }),
       ...(profileHue !== undefined && { profileHue }),
+      ...(profilePhotoUrl !== undefined && { profilePhotoUrl }),
       ...(colorBg !== undefined && { colorBg }),
       ...(colorInk !== undefined && { colorInk }),
       ...(colorAcc1 !== undefined && { colorAcc1 }),
