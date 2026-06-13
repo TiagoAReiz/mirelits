@@ -83,6 +83,29 @@ img { display: block; max-width: 100%; }
 .btn--accent:hover { background: var(--acc-1-ink); border-color: var(--acc-1-ink); }
 .btn--sm { padding: 8px 13px; font-size: 11px; }
 
+/* ---------- draft chip ---------- */
+.draft-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--ff-mono); font-size: 9px; letter-spacing: .07em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 99px; cursor: pointer;
+  background: color-mix(in oklch, var(--acc-3) 14%, transparent);
+  border: 1px solid color-mix(in oklch, var(--acc-3) 40%, transparent);
+  color: color-mix(in oklch, var(--acc-3) 80%, var(--ink));
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+}
+.draft-chip:hover:not(:disabled) {
+  background: var(--acc-3);
+  border-color: var(--acc-3);
+  color: oklch(1 0 0);
+}
+.draft-chip:disabled { opacity: .6; cursor: default; animation: pulse .9s ease-in-out infinite; }
+.draft-chip__dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor; flex-shrink: 0;
+  transition: inherit;
+}
+
 /* ---------- form fields ---------- */
 .field {
   font-family: var(--ff-body);
