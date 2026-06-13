@@ -145,25 +145,7 @@ export default async function SobrePage() {
                     href={sl.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 10,
-                      padding: '12px 18px', borderRadius: 12,
-                      border: '1px solid var(--line)', background: 'var(--paper)',
-                      color: 'var(--ink)', transition: 'border-color .18s, transform .18s, box-shadow .18s',
-                      textDecoration: 'none',
-                    }}
-                    onMouseEnter={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.borderColor = 'var(--acc-1)'
-                      el.style.transform = 'translateY(-2px)'
-                      el.style.boxShadow = '0 6px 18px color-mix(in oklch, var(--ink) 8%, transparent)'
-                    }}
-                    onMouseLeave={(e) => {
-                      const el = e.currentTarget as HTMLElement
-                      el.style.borderColor = 'var(--line)'
-                      el.style.transform = 'none'
-                      el.style.boxShadow = 'none'
-                    }}
+                    className="social-card"
                   >
                     <span style={{ color: 'var(--acc-1)', display: 'flex' }}>
                       <SocialIcon platform={sl.platform} size={20} />
@@ -192,6 +174,20 @@ export default async function SobrePage() {
       <style>{`
         @media (min-width: 820px) {
           .about-grid { grid-template-columns: 1fr auto !important; align-items: start; }
+        }
+        .social-card {
+          display: inline-flex; align-items: center; gap: 10;
+          padding: 12px 18px; border-radius: 12px;
+          border: 1px solid var(--line); background: var(--paper);
+          color: var(--ink); text-decoration: none;
+          transition: border-color .18s, transform .18s, box-shadow .18s;
+        }
+        @media (hover: hover) {
+          .social-card:hover {
+            border-color: var(--acc-1);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px color-mix(in oklch, var(--ink) 8%, transparent);
+          }
         }
       `}</style>
     </>
