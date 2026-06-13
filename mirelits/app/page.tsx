@@ -19,6 +19,14 @@ async function getProfile() {
   }
 }
 
+async function getSocialLinks() {
+  try {
+    return await prisma.socialLink.findMany({ orderBy: { position: 'asc' } })
+  } catch {
+    return []
+  }
+}
+
 async function getProjects() {
   try {
     return await prisma.project.findMany({
@@ -41,7 +49,7 @@ async function getProjects() {
 }
 
 export default async function Home() {
-  const [profile, projects] = await Promise.all([getProfile(), getProjects()])
+  const [profile, projects, socialLinks] = await Promise.all([getProfile(), getProjects(), getSocialLinks()])
 
   const name = profile?.name ?? 'mirelits'
   const tagline = profile?.tagline ?? 'Ilustradora & quadrinista'
@@ -57,6 +65,7 @@ export default async function Home() {
           tagline,
           profileHue: profile?.profileHue ?? 'laranja',
           profilePhotoUrl: profile?.profilePhotoUrl,
+          socialLinks,
         }}
       />
 

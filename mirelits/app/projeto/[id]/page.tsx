@@ -34,6 +34,11 @@ async function getProfile() {
   }
 }
 
+async function getSocialLinks() {
+  try { return await prisma.socialLink.findMany({ orderBy: { position: 'asc' } }) }
+  catch { return [] }
+}
+
 async function getNextProject(id: string) {
   try {
     return await prisma.project.findFirst({
@@ -58,10 +63,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProjetoPage({ params }: Props) {
   const { id } = await params
-  const [project, profile, nextProject] = await Promise.all([
+  const [project, profile, nextProject, socialLinks] = await Promise.all([
     getProject(id),
     getProfile(),
     getNextProject(id),
+    getSocialLinks(),
   ])
 
   if (!project) notFound()
@@ -76,6 +82,7 @@ export default async function ProjetoPage({ params }: Props) {
           tagline: profile?.tagline,
           profileHue: profile?.profileHue ?? 'laranja',
           profilePhotoUrl: profile?.profilePhotoUrl,
+          socialLinks,
         }}
       />
 

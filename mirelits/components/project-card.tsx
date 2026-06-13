@@ -38,7 +38,8 @@ export function ProjectCard({
   hoverStyle = 'deck',
 }: ProjectCardProps) {
   const cover = coverPhoto ?? photos[0]
-  const deckPhotos = photos.slice(0, 4)
+  // exclude the cover so it doesn't duplicate in the deck spread
+  const deckPhotos = photos.filter((p) => p.id !== cover?.id).slice(0, 4)
 
   return (
     <Link href={`/projeto/${id}`} className={`pcard pcard--${hoverStyle}`}>

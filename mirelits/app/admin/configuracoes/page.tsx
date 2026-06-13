@@ -7,11 +7,12 @@ export const metadata: Metadata = { title: 'Configurações — Admin · mirelit
 export const dynamic = 'force-dynamic'
 
 async function getData() {
-  const [profile, timeline] = await Promise.all([
+  const [profile, timeline, socialLinks] = await Promise.all([
     prisma.artistProfile.findFirst(),
     prisma.timelineEntry.findMany({ orderBy: { position: 'asc' } }),
+    prisma.socialLink.findMany({ orderBy: { position: 'asc' } }),
   ])
-  return { profile, timeline }
+  return { profile, timeline, socialLinks }
 }
 
 const DEFAULT_PROFILE = {
@@ -23,7 +24,7 @@ const DEFAULT_PROFILE = {
 }
 
 export default async function ConfiguracoesPage() {
-  const { profile, timeline } = await getData()
+  const { profile, timeline, socialLinks } = await getData()
   const artistName = profile?.name ?? 'mirelits'
 
   const profileData = {
@@ -63,7 +64,7 @@ export default async function ConfiguracoesPage() {
         </h1>
       </div>
 
-      <ConfigEditor profile={profileData} timeline={timelineData} />
+      <ConfigEditor profile={profileData} timeline={timelineData} socialLinks={socialLinks} />
     </AdminShell>
   )
 }

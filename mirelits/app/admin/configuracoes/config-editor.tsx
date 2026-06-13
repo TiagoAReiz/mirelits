@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import { SocialIcon, SOCIAL_PLATFORMS } from '@/components/social-icon'
 
 /* ── types ── */
 interface ProfileData {
@@ -29,9 +30,18 @@ interface TimelineEntry {
   position: number
 }
 
+interface SocialLink {
+  id: string
+  platform: string
+  label: string
+  url: string
+  position: number
+}
+
 interface Props {
   profile: ProfileData
   timeline: TimelineEntry[]
+  socialLinks: SocialLink[]
 }
 
 const HUES = ['azul', 'marinho', 'laranja', 'verde', 'roxo', 'rosa', 'ocre', 'pedra', 'ceu', 'vinho']
@@ -71,7 +81,7 @@ function Swatch({ color, active, onClick, title }: { color: string; active: bool
   )
 }
 
-export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: Props) {
+export function ConfigEditor({ profile: initProfile, timeline: initTimeline, socialLinks: initSocial }: Props) {
   const router = useRouter()
   const [profile, setProfile] = useState(initProfile)
   const [timeline, setTimeline] = useState(initTimeline)
@@ -80,6 +90,9 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: P
   const photoRef = useRef<HTMLInputElement>(null)
   const dragIdx = useRef<number | null>(null)
   const [tdOver, setTdOver] = useState<number | null>(null)
+  const [social, setSocial] = useState<SocialLink[]>(initSocial)
+  const sdragIdx = useRef<number | null>(null)
+  const [sdOver, setSdOver] = useState<number | null>(null)
 
   const setP = (k: keyof ProfileData) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
@@ -196,6 +209,66 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: P
       setTimeout(() => setMsg(''), 2500)
     }
   }
+
+  /* ── social links CRUD ── */
+  const addSocial = () => {
+    const ns: SocialLink = { id: `_new_${Date.now()}`, platform: 'instagram', label: 'Instagram', url: '', position: social.length }
+    setSocial((s) => [...s, ns])
+  }
+
+  const updateSocial = (id: string, patch: Partial<SocialLink>) =>
+    setSocial((ss) => ss.map((s) => s.id === id ? { ...s, ...patch } : s))
+
+  const removeSocial = async (id: string) => {
+    setSocial((ss) => ss.filter((s) => s.id !== id))
+    if (!id.startsWith('_')) {
+      await fetch(`/api/admin/social-links/${id}`, { method: 'DELETE' })
+    }
+  }
+
+  const saveSocial = async () => {
+    setSaving(true); setMsg('')
+    try {
+      for (const s of social) {
+        if (s.id.startsWith('_')) {
+          if (!s.url.trim()) continue
+          await fetch('/api/admin/social-links', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform: s.platform, label: s.label, url: s.url, position: s.position }),
+          })
+        } else {
+          await fetch(`/api/admin/social-links/${s.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ platform: s.platform, label: s.label, url: s.url, position: s.position }),
+          })
+        }
+      }
+      setMsg('Redes salvas!'); router.refresh()
+    } catch {
+      setMsg('Erro ao salvar redes.')
+    } finally {
+      setSaving(false); setTimeout(() => setMsg(''), 2500)
+    }
+  }
+
+  /* ── social drag ── */
+  const sdProps = (i: number) => ({
+    draggable: true,
+    onDragStart: () => { sdragIdx.current = i },
+    onDragOver: (e: React.DragEvent) => { e.preventDefault(); setSdOver(i) },
+    onDrop: (e: React.DragEvent) => {
+      e.preventDefault()
+      const from = sdragIdx.current
+      if (from != null && from !== i) {
+        const next = [...social]; const [m] = next.splice(from, 1); next.splice(i, 0, m)
+        setSocial(next.map((s, idx) => ({ ...s, position: idx })))
+      }
+      sdragIdx.current = null; setSdOver(null)
+    },
+    onDragEnd: () => { sdragIdx.current = null; setSdOver(null) },
+  })
 
   /* ── timeline drag ── */
   const tdProps = (i: number) => ({
@@ -349,6 +422,54 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline }: P
         <button className="btn btn--ghost btn--sm" style={{ marginTop: 14 }} onClick={saveTimeline} disabled={saving}>
           {saving ? 'Salvando…' : 'Salvar linha do tempo'}
         </button>
+      </section>
+
+      {/* ── redes sociais ── */}
+      <section style={card({ gridColumn: '1 / -1' })}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+          <div>
+            <h2 className="serif" style={{ fontSize: 22, margin: 0, fontWeight: 500 }}>Redes sociais</h2>
+            <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '4px 0 0' }}>
+              Aparecem no cabeçalho (máx. 3 ícones) e na página Sobre.
+            </p>
+          </div>
+          <button className="btn btn--ghost btn--sm" onClick={addSocial}>+ Rede</button>
+        </div>
+        <div style={{ display: 'grid', gap: 10 }}>
+          {social.map((s, i) => (
+            <div key={s.id} {...sdProps(i)}
+              style={{ display: 'flex', gap: 10, alignItems: 'center', padding: 10, borderRadius: 8, border: `1px solid ${sdOver === i ? 'var(--acc-1)' : 'var(--line)'}`, background: 'var(--bg)', cursor: 'grab', flexWrap: 'wrap' }}>
+              <span className="mono" style={{ cursor: 'grab', color: 'var(--ink-faint)', fontSize: 16 }}>⠿</span>
+              {/* platform icon preview */}
+              <span style={{ color: 'var(--acc-1)', display: 'flex', flexShrink: 0 }}>
+                <SocialIcon platform={s.platform} size={20} />
+              </span>
+              <select className="field" style={{ width: 140, padding: '8px 10px', fontSize: 13 }}
+                value={s.platform}
+                onChange={(e) => updateSocial(s.id, { platform: e.target.value, label: SOCIAL_PLATFORMS.find(p => p.value === e.target.value)?.label ?? s.label })}>
+                {SOCIAL_PLATFORMS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+              </select>
+              <input className="field" style={{ width: 130, padding: '8px 10px', fontSize: 13 }}
+                placeholder="Rótulo" value={s.label}
+                onChange={(e) => updateSocial(s.id, { label: e.target.value })} />
+              <input className="field" style={{ flex: 1, minWidth: 180, padding: '8px 10px', fontSize: 13 }}
+                placeholder="https://..." value={s.url}
+                onChange={(e) => updateSocial(s.id, { url: e.target.value })} />
+              <button onClick={() => removeSocial(s.id)} className="mono" style={{ width: 30, height: 30, borderRadius: 6, border: '1px solid var(--line)', background: 'var(--bg)', color: 'var(--ink-soft)', flexShrink: 0 }}>✕</button>
+            </div>
+          ))}
+          {social.length === 0 && (
+            <div className="mono" style={{ fontSize: 12, color: 'var(--ink-faint)', padding: '18px 0', textAlign: 'center' }}>
+              Nenhuma rede adicionada ainda. Clique em "+ Rede" acima.
+            </div>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 14 }}>
+          <button className="btn btn--ghost btn--sm" onClick={saveSocial} disabled={saving}>
+            {saving ? 'Salvando…' : 'Salvar redes'}
+          </button>
+          {msg && <span className="mono" style={{ fontSize: 12, color: 'var(--acc-2-ink, var(--acc-2))' }}>{msg}</span>}
+        </div>
       </section>
 
       <style>{`@media (min-width:920px){ .config-grid{ grid-template-columns: 1fr 1fr !important; } }`}</style>

@@ -4,12 +4,21 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Avatar } from './avatar'
+import { SocialIcon } from './social-icon'
+
+interface SocialLink {
+  id: string
+  platform: string
+  label: string
+  url: string
+}
 
 interface HeaderProfile {
   name: string
   tagline?: string | null
   profileHue?: string
   profilePhotoUrl?: string | null
+  socialLinks?: SocialLink[]
 }
 
 const LINKS = [
@@ -18,9 +27,14 @@ const LINKS = [
   { label: 'Contato',  href: '/contato', match: (p: string) => p === '/contato' },
 ]
 
+const MAX_ICONS = 3
+
 export function Header({ profile }: { profile: HeaderProfile }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const links = profile.socialLinks ?? []
+  const visibleLinks = links.slice(0, MAX_ICONS)
+  const overflow = links.length - MAX_ICONS
 
   return (
     <header style={{
@@ -63,6 +77,30 @@ export function Header({ profile }: { profile: HeaderProfile }) {
           <Link href="/contato" className="btn btn--sm" style={{ marginLeft: 4 }}>
             Propor projeto
           </Link>
+
+          {/* social icons */}
+          {links.length > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 10, paddingLeft: 14, borderLeft: '1px solid var(--line)' }}>
+              {visibleLinks.map((sl) => (
+                <a key={sl.id} href={sl.url} target="_blank" rel="noopener noreferrer"
+                  title={sl.label}
+                  style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, color: 'var(--ink-soft)', transition: 'color .15s, background .15s' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--ink)'; (e.currentTarget as HTMLElement).style.background = 'var(--line-soft)' }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = 'var(--ink-soft)'; (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                >
+                  <SocialIcon platform={sl.platform} size={17} />
+                </a>
+              ))}
+              {overflow > 0 && (
+                <Link href="/sobre#redes"
+                  className="mono"
+                  style={{ fontSize: 11, letterSpacing: '.06em', color: 'var(--ink-faint)', paddingInline: 7, paddingBlock: 3, borderRadius: 99, border: '1px solid var(--line)' }}
+                >
+                  +{overflow}
+                </Link>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* mobile burger */}
@@ -103,6 +141,22 @@ export function Header({ profile }: { profile: HeaderProfile }) {
           <Link href="/contato" className="btn" onClick={() => setOpen(false)} style={{ marginTop: 8, justifyContent: 'center' }}>
             Propor projeto
           </Link>
+
+          {/* social links on mobile */}
+          {links.length > 0 && (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', paddingTop: 12, borderTop: '1px solid var(--line-soft)', marginTop: 4 }}>
+              {links.map((sl) => (
+                <a key={sl.id} href={sl.url} target="_blank" rel="noopener noreferrer"
+                  title={sl.label}
+                  onClick={() => setOpen(false)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '7px 12px', borderRadius: 99, border: '1px solid var(--line)', color: 'var(--ink-soft)', fontSize: 13 }}
+                >
+                  <SocialIcon platform={sl.platform} size={15} />
+                  <span className="mono" style={{ fontSize: 11, letterSpacing: '.04em' }}>{sl.label}</span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

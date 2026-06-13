@@ -215,7 +215,7 @@ select.field   { appearance: none; cursor: pointer; }
     opacity: 1;
     transform: translateX(var(--dx)) translateY(calc(-1 * var(--dy))) rotate(var(--dr));
   }
-  .pcard--deck:hover .pcard__img { transform: translateY(-10px); }
+  .pcard--deck:hover .pcard__img { transform: translateY(-12px) rotate(-4deg); }
 
   .pcard--dark:hover .pcard__img::after {
     content: '';
