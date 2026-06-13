@@ -11,9 +11,10 @@ interface PhProps {
   showCap?: boolean
   angle?: number
   fill?: boolean
+  sizes?: string
 }
 
-export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {}, showCap = true, angle, fill }: PhProps) {
+export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {}, showCap = true, angle, fill, sizes = '(max-width: 760px) 100vw, 50vw' }: PhProps) {
   const h = HUES[hue] ?? HUES.pedra
 
   const st: React.CSSProperties = {
@@ -32,7 +33,7 @@ export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {},
           src={src}
           alt={cap ?? ''}
           fill
-          sizes="(max-width: 760px) 50vw, 25vw"
+          sizes={sizes}
           style={{ objectFit: 'cover', zIndex: 1 }}
         />
       </div>

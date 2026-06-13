@@ -30,7 +30,8 @@ export function Avatar({ name, profileHue = 'laranja', profilePhotoUrl, size = 3
   if (profilePhotoUrl) {
     return (
       <div style={boxStyle}>
-        <Image src={profilePhotoUrl} alt={name} fill style={{ objectFit: 'cover' }} sizes="120px" />
+        <Image src={profilePhotoUrl} alt={name} fill style={{ objectFit: 'cover' }}
+          sizes={fill ? '(max-width: 820px) 40vw, 260px' : `${size}px`} />
       </div>
     )
   }
