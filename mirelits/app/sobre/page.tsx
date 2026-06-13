@@ -176,7 +176,7 @@ export default async function SobrePage() {
           .about-grid { grid-template-columns: 1fr auto !important; align-items: start; }
         }
         .social-card {
-          display: inline-flex; align-items: center; gap: 16;
+          display: inline-flex; align-items: center; gap: 16px;
           padding: 12px 18px; border-radius: 12px;
           border: 1px solid var(--line); background: var(--paper);
           color: var(--ink); text-decoration: none;
