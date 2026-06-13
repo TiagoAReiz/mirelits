@@ -49,6 +49,7 @@ export function ProjectEditor({ initial }: { initial?: ProjectData }) {
   const [proj, setProj] = useState<ProjectData>(initial ?? EMPTY)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [uploadMsg, setUploadMsg] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const dragIdx = useRef<number | null>(null)
   const [over, setOver] = useState<number | null>(null)
@@ -89,25 +90,42 @@ export function ProjectEditor({ initial }: { initial?: ProjectData }) {
     const files = [...(e.target.files ?? [])]
     e.target.value = ''
     if (!files.length) return
-    // If project doesn't exist yet, save it first
+
     let projectId: string | undefined = proj.id
     if (!projectId) {
       if (!proj.title.trim()) { setError('Dê um título ao projeto antes de adicionar fotos.'); return }
       projectId = await createProject()
       if (!projectId) return
     }
-    for (const f of files) {
-      const fd = new FormData()
-      fd.append('file', f)
-      const res = await fetch(`/api/admin/projects/${projectId}/photos`, { method: 'POST', body: fd })
-      if (res.ok) {
-        const photo = await res.json()
-        setProj((p) => ({
-          ...p,
-          id: projectId!,
-          photos: [...p.photos, { id: photo.id, url: photo.url, ratio: 1, hue: 'pedra', position: p.photos.length }],
-        }))
+
+    setError('')
+    const failed: string[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i]
+      setUploadMsg(`Enviando ${i + 1} de ${files.length}…`)
+      try {
+        const fd = new FormData()
+        fd.append('file', f)
+        const res = await fetch(`/api/admin/projects/${projectId}/photos`, { method: 'POST', body: fd })
+        if (res.ok) {
+          const photo = await res.json()
+          setProj((p) => ({
+            ...p,
+            id: projectId!,
+            photos: [...p.photos, { id: photo.id, url: photo.url, ratio: 1, hue: 'pedra', position: p.photos.length }],
+          }))
+        } else {
+          failed.push(f.name)
+        }
+      } catch {
+        failed.push(f.name)
       }
+    }
+
+    setUploadMsg('')
+    if (failed.length > 0) {
+      setError(`Erro ao enviar: ${failed.join(', ')}`)
     }
   }
 
@@ -271,14 +289,22 @@ export function ProjectEditor({ initial }: { initial?: ProjectData }) {
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center' }}>
               <button
                 onClick={() => fileRef.current?.click()}
+                disabled={!!uploadMsg}
                 className="btn btn--ghost btn--sm"
+                style={{ opacity: uploadMsg ? 0.5 : 1 }}
               >
                 ↑ Enviar imagem
               </button>
               <input ref={fileRef} type="file" accept="image/*" multiple onChange={onUpload} style={{ display: 'none' }} />
-              <span className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
-                JPEG, PNG ou WEBP · múltiplos ficheiros
-              </span>
+              {uploadMsg
+                ? <span className="mono" style={{ fontSize: 11, color: 'var(--acc-1-ink)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: 'var(--acc-1)', animation: 'pulse 1s infinite' }} />
+                    {uploadMsg}
+                  </span>
+                : <span className="mono" style={{ fontSize: 11, color: 'var(--ink-faint)' }}>
+                    JPEG, PNG ou WEBP · múltiplos ficheiros
+                  </span>
+              }
             </div>
           </div>
 

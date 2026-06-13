@@ -64,29 +64,31 @@ export function ProjectCard({
 
       {/* cover */}
       <div className="pcard__img">
-        {pinned && pinLabel && (
-          <span className="pcard__pin">{pinLabel}</span>
+        {pinned && (
+          <span className="pcard__pin">{pinLabel || 'Destaque'}</span>
         )}
         <Ph
           src={cover?.url}
           hue={cover?.hue ?? 'pedra'}
           ratio={cover?.ratio ?? 1.4}
-          cap={title}
           style={{ width: '100%' }}
         />
-        {/* dark hover caption */}
+
+        {/* deck: always-visible overlay caption at bottom */}
+        {hoverStyle === 'deck' && (
+          <div className="pcard__cap">
+            {category && <span className="pcard__cat">{category}</span>}
+            <span className="pcard__title">{title}</span>
+          </div>
+        )}
+
+        {/* dark: caption appears on hover */}
         {hoverStyle === 'dark' && (
           <div className="pcard__hover-cap">
             <div className="label" style={{ color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>{category}</div>
             <div className="serif" style={{ fontSize: 'clamp(15px, 2vw, 20px)' }}>{title}</div>
           </div>
         )}
-      </div>
-
-      {/* visible caption */}
-      <div className="pcard__cap">
-        {category && <span className="pcard__cat">{category}</span>}
-        <span className="pcard__title">{title}</span>
       </div>
     </Link>
   )

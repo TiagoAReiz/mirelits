@@ -46,13 +46,26 @@ async function getTheme() {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = await getTheme()
 
+  // supports both bare oklch params ("0.98 0.006 85") and full CSS values ("oklch(...)" or "#hex")
+  function cssColor(val: string | null | undefined): string | null {
+    if (!val) return null
+    if (val.startsWith('#') || val.startsWith('oklch(') || val.startsWith('rgb')) return val
+    return `oklch(${val})`
+  }
+
+  const bg   = cssColor(theme?.colorBg)
+  const ink  = cssColor(theme?.colorInk)
+  const acc1 = cssColor(theme?.colorAcc1)
+  const acc2 = cssColor(theme?.colorAcc2)
+  const acc3 = cssColor(theme?.colorAcc3)
+
   const themeVars = theme
     ? [
-        theme.colorBg   ? `--bg: oklch(${theme.colorBg});` : '',
-        theme.colorInk  ? `--ink: oklch(${theme.colorInk}); --ink-soft: oklch(from oklch(${theme.colorInk}) calc(l + 0.25) c h); --ink-faint: oklch(from oklch(${theme.colorInk}) calc(l + 0.44) c h);` : '',
-        theme.colorAcc1 ? `--acc-1: oklch(${theme.colorAcc1}); --acc-1-ink: oklch(from oklch(${theme.colorAcc1}) calc(l - 0.28) c h);` : '',
-        theme.colorAcc2 ? `--acc-2: oklch(${theme.colorAcc2});` : '',
-        theme.colorAcc3 ? `--acc-3: oklch(${theme.colorAcc3});` : '',
+        bg   ? `--bg: ${bg};` : '',
+        ink  ? `--ink: ${ink}; --ink-soft: oklch(from ${ink} calc(l + 0.25) c h); --ink-faint: oklch(from ${ink} calc(l + 0.44) c h);` : '',
+        acc1 ? `--acc-1: ${acc1}; --acc-1-ink: oklch(from ${acc1} calc(l - 0.28) c h);` : '',
+        acc2 ? `--acc-2: ${acc2};` : '',
+        acc3 ? `--acc-3: ${acc3};` : '',
       ].filter(Boolean).join('\n')
     : ''
 
