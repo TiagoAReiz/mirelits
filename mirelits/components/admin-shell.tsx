@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
+import { Avatar } from './avatar'
 
 const TABS = [
   { label: 'Projetos', href: '/admin/projetos', match: (p: string) => p.startsWith('/admin/projetos') },
@@ -12,9 +13,11 @@ const TABS = [
 interface AdminShellProps {
   children: React.ReactNode
   artistName?: string
+  profilePhotoUrl?: string | null
+  profileHue?: string
 }
 
-export function AdminShell({ children, artistName = 'mirelits' }: AdminShellProps) {
+export function AdminShell({ children, artistName = 'mirelits', profilePhotoUrl, profileHue }: AdminShellProps) {
   const pathname = usePathname()
 
   return (
@@ -23,9 +26,7 @@ export function AdminShell({ children, artistName = 'mirelits' }: AdminShellProp
         <div className="wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 58, gap: 14 }}>
           {/* brand */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--acc-1)', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-              <span className="serif" style={{ color: '#fff', fontSize: 12, fontWeight: 600 }}>M</span>
-            </div>
+            <Avatar name={artistName} profileHue={profileHue} profilePhotoUrl={profilePhotoUrl} size={28} />
             <div>
               <div className="serif" style={{ fontSize: 15, fontWeight: 500, lineHeight: 1, color: 'white', whiteSpace: 'nowrap' }}>
                 {artistName}
