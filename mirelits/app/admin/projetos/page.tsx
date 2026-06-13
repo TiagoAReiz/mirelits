@@ -19,18 +19,18 @@ async function getProjects() {
   })
 }
 
-async function getArtistName() {
+async function getArtistProfile() {
   try {
-    const p = await prisma.artistProfile.findFirst({ select: { name: true } })
-    return p?.name ?? 'mirelits'
-  } catch { return 'mirelits' }
+    const p = await prisma.artistProfile.findFirst({ select: { name: true, profilePhotoUrl: true, profileHue: true } })
+    return { name: p?.name ?? 'mirelits', profilePhotoUrl: p?.profilePhotoUrl ?? null, profileHue: p?.profileHue ?? 'laranja' }
+  } catch { return { name: 'mirelits', profilePhotoUrl: null, profileHue: 'laranja' } }
 }
 
 export default async function AdminProjetosPage() {
-  const [projects, artistName] = await Promise.all([getProjects(), getArtistName()])
+  const [projects, artist] = await Promise.all([getProjects(), getArtistProfile()])
 
   return (
-    <AdminShell artistName={artistName}>
+    <AdminShell artistName={artist.name} profilePhotoUrl={artist.profilePhotoUrl} profileHue={artist.profileHue}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         {/* header */}
         <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 26, flexWrap: 'wrap' }}>

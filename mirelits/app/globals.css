@@ -199,7 +199,10 @@ select.field   { appearance: none; cursor: pointer; }
   display: flex;
   flex-direction: column;
   gap: 3px;
+  opacity: 0;
+  transition: opacity .22s ease;
 }
+.pcard:hover .pcard__cap { opacity: 1; }
 .pcard__cat {
   font-family: var(--ff-mono);
   font-size: 10px;

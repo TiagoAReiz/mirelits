@@ -20,11 +20,11 @@ async function getProject(id: string) {
   })
 }
 
-async function getArtistName() {
+async function getArtistProfile() {
   try {
-    const p = await prisma.artistProfile.findFirst({ select: { name: true } })
-    return p?.name ?? 'mirelits'
-  } catch { return 'mirelits' }
+    const p = await prisma.artistProfile.findFirst({ select: { name: true, profilePhotoUrl: true, profileHue: true } })
+    return { name: p?.name ?? 'mirelits', profilePhotoUrl: p?.profilePhotoUrl ?? null, profileHue: p?.profileHue ?? 'laranja' }
+  } catch { return { name: 'mirelits', profilePhotoUrl: null, profileHue: 'laranja' } }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function EditarProjetoPage({ params }: Props) {
   const { id } = await params
-  const [project, artistName] = await Promise.all([getProject(id), getArtistName()])
+  const [project, artist] = await Promise.all([getProject(id), getArtistProfile()])
   if (!project) notFound()
 
   const initial = {
@@ -59,7 +59,7 @@ export default async function EditarProjetoPage({ params }: Props) {
   }
 
   return (
-    <AdminShell artistName={artistName}>
+    <AdminShell artistName={artist.name} profilePhotoUrl={artist.profilePhotoUrl} profileHue={artist.profileHue}>
       <ProjectEditor initial={initial} />
     </AdminShell>
   )

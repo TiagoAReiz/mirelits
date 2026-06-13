@@ -53,7 +53,7 @@ export default async function ConfiguracoesPage() {
   }))
 
   return (
-    <AdminShell artistName={artistName}>
+    <AdminShell artistName={artistName} profilePhotoUrl={profileData.profilePhotoUrl} profileHue={profileData.profileHue}>
       <div style={{ marginBottom: 26 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 8 }}>
           <span className="dot" style={{ background: 'var(--acc-2)' }} />
