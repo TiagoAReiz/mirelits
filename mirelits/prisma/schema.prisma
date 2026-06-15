@@ -71,6 +71,9 @@ model ArtistProfile {
   colorAcc1       String?
   colorAcc2       String?
   colorAcc3       String?
+  fontDisplay     String?
+  fontSubtitle    String?
+  fontBody        String?
   updatedAt       DateTime @updatedAt
 }
 
