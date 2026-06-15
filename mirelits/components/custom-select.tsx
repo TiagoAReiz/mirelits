@@ -63,7 +63,7 @@ export function CustomSelect({ value, onChange, options, placeholder }: Props) {
             {selected.icon}
           </span>
         )}
-        <span style={{ flex: 1, ...(selected?.style ?? {}) }}>
+        <span style={{ flex: 1, ...(selected?.style ?? {}), fontSize: 'inherit' }}>
           {selected?.label ?? placeholder ?? '—'}
         </span>
         <span style={{ color: 'var(--ink-soft)', fontSize: 11, flexShrink: 0 }}>▾</span>
