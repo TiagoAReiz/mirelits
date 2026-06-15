@@ -20,6 +20,9 @@ interface ProfileData {
   colorAcc1: string | null
   colorAcc2: string | null
   colorAcc3: string | null
+  fontDisplay:  string | null
+  fontSubtitle: string | null
+  fontBody:     string | null
 }
 
 interface TimelineEntry {
@@ -45,7 +48,7 @@ interface Props {
 }
 
 /* ── section save state ── */
-type Sec = 'colors' | 'photo' | 'identity' | 'timeline' | 'social'
+type Sec = 'colors' | 'photo' | 'identity' | 'timeline' | 'social' | 'fonts'
 interface SecState { saving: boolean; msg: string }
 const IDLE: SecState = { saving: false, msg: '' }
 
@@ -72,6 +75,17 @@ const COLOR_FIELDS: { key: keyof ProfileData; label: string; cssVar: string }[] 
   { key: 'colorAcc2',label: 'Cor 2',  cssVar: '--acc-2' },
   { key: 'colorAcc3',label: 'Cor 3',  cssVar: '--acc-3' },
 ]
+
+const FONT_OPTIONS = [
+  { key: 'newsreader', label: 'Newsreader',         cssVar: '--font-newsreader', fallback: 'Georgia, serif'        },
+  { key: 'playfair',   label: 'Playfair Display',   cssVar: '--font-playfair',   fallback: 'Georgia, serif'        },
+  { key: 'cormorant',  label: 'Cormorant Garamond', cssVar: '--font-cormorant',  fallback: 'Georgia, serif'        },
+  { key: 'lora',       label: 'Lora',               cssVar: '--font-lora',       fallback: 'Georgia, serif'        },
+  { key: 'hanken',     label: 'Hanken Grotesk',     cssVar: '--font-hanken',     fallback: 'system-ui, sans-serif' },
+  { key: 'inter',      label: 'Inter',              cssVar: '--font-inter',      fallback: 'system-ui, sans-serif' },
+  { key: 'dm-sans',    label: 'DM Sans',            cssVar: '--font-dm-sans',    fallback: 'system-ui, sans-serif' },
+  { key: 'jakarta',    label: 'Plus Jakarta Sans',  cssVar: '--font-jakarta',    fallback: 'system-ui, sans-serif' },
+] as const
 
 function card(extra?: React.CSSProperties): React.CSSProperties {
   return { background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 12, padding: 'clamp(16px,3vw,24px)', ...extra }
@@ -110,7 +124,7 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
 
   /* per-section save state */
   const [sec, setSec] = useState<Record<Sec, SecState>>({
-    colors: IDLE, photo: IDLE, identity: IDLE, timeline: IDLE, social: IDLE,
+    colors: IDLE, photo: IDLE, identity: IDLE, timeline: IDLE, social: IDLE, fonts: IDLE,
   })
   const [allSaving, setAllSaving] = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
@@ -269,13 +283,6 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
     }
   }, [social, router])
 
-  /* ── save all ── */
-  const saveAll = useCallback(async () => {
-    setAllSaving(true)
-    await Promise.all([saveColors(), savePhoto(), saveIdentity(), saveTimeline(), saveSocial()])
-    setAllSaving(false)
-  }, [saveColors, savePhoto, saveIdentity, saveTimeline, saveSocial])
-
   /* ── color helpers ── */
   const applyColor = (key: keyof ProfileData, cssVar: string, val: string) => {
     setProfile((p) => ({ ...p, [key]: val }))
@@ -298,6 +305,42 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
     r.setProperty('--acc-1-ink', `oklch(from ${pre.acc1} calc(l - 0.28) c h)`)
     r.setProperty('--acc-2', pre.acc2); r.setProperty('--acc-3', pre.acc3)
   }
+
+  /* ── apply font (live preview) ── */
+  const applyFont = (profileKey: 'fontDisplay' | 'fontSubtitle' | 'fontBody', cssVar: string, fontKey: string) => {
+    setProfile((p) => ({ ...p, [profileKey]: fontKey }))
+    const opt = FONT_OPTIONS.find((f) => f.key === fontKey)
+    if (opt) {
+      document.documentElement.style.setProperty(cssVar, `var(${opt.cssVar}), ${opt.fallback}`)
+    }
+  }
+
+  /* ── save fonts ── */
+  const saveFonts = useCallback(async () => {
+    startSec('fonts')
+    try {
+      await fetch('/api/admin/artist-profile/meta', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fontDisplay:  profile.fontDisplay,
+          fontSubtitle: profile.fontSubtitle,
+          fontBody:     profile.fontBody,
+        }),
+      })
+      endSec('fonts', 'Fontes salvas!')
+      router.refresh()
+    } catch {
+      endSec('fonts', 'Erro ao salvar.')
+    }
+  }, [profile, router])
+
+  /* ── save all ── */
+  const saveAll = useCallback(async () => {
+    setAllSaving(true)
+    await Promise.all([saveColors(), savePhoto(), saveIdentity(), saveTimeline(), saveSocial(), saveFonts()])
+    setAllSaving(false)
+  }, [saveColors, savePhoto, saveIdentity, saveTimeline, saveSocial, saveFonts])
 
   /* ── timeline helpers ── */
   const addTimeline = () =>
@@ -383,6 +426,57 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
       </div>
 
       <div style={{ display: 'grid', gap: 20, gridTemplateColumns: '1fr' }} className="config-grid">
+
+        {/* ── fontes ── */}
+        <section style={card()}>
+          <h2 className="serif" style={{ fontSize: 22, margin: '0 0 4px', fontWeight: 500 }}>Fontes do site</h2>
+          <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 20px' }}>Muda em tempo real no site após salvar.</p>
+
+          {(
+            [
+              { label: 'TÍTULOS',    profileKey: 'fontDisplay'  as const, cssVar: '--ff-display',  defaultKey: 'newsreader' },
+              { label: 'SUBTÍTULOS', profileKey: 'fontSubtitle' as const, cssVar: '--ff-subtitle', defaultKey: 'newsreader' },
+              { label: 'CORPO',      profileKey: 'fontBody'     as const, cssVar: '--ff-body',     defaultKey: 'hanken'     },
+            ] as const
+          ).map(({ label, profileKey, cssVar, defaultKey }) => (
+            <div key={profileKey} style={{ marginBottom: 20 }}>
+              <span className="label" style={{ display: 'block', marginBottom: 10 }}>{label}</span>
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                {FONT_OPTIONS.map((opt) => {
+                  const active = (profile[profileKey] ?? defaultKey) === opt.key
+                  return (
+                    <button
+                      key={opt.key}
+                      onClick={() => applyFont(profileKey, cssVar, opt.key)}
+                      style={{
+                        fontFamily: `var(${opt.cssVar}), ${opt.fallback}`,
+                        padding: '10px 14px',
+                        borderRadius: 10,
+                        border: `2px solid ${active ? 'var(--acc-1)' : 'var(--line)'}`,
+                        background: active
+                          ? 'color-mix(in oklch, var(--acc-1) 8%, var(--paper))'
+                          : 'var(--paper)',
+                        cursor: 'pointer',
+                        minWidth: 110,
+                        textAlign: 'left' as const,
+                        transition: 'border-color .15s, background .15s',
+                      }}
+                    >
+                      <div style={{ fontSize: 18, fontWeight: 400, color: 'var(--ink)', lineHeight: 1.2 }}>
+                        {opt.label}
+                      </div>
+                      <div style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--ink-soft)', marginTop: 3 }}>
+                        Aa
+                      </div>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+
+          <SaveRow state={sec.fonts} onSave={saveFonts} label="Salvar fontes" />
+        </section>
 
         {/* ── cores ── */}
         <section style={card()}>
