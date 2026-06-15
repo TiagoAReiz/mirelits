@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { SocialIcon, SOCIAL_PLATFORMS } from '@/components/social-icon'
+import { FONT_REGISTRY, type FontKey } from '@/lib/font-registry'
 
 /* ── types ── */
 interface ProfileData {
@@ -76,16 +77,9 @@ const COLOR_FIELDS: { key: keyof ProfileData; label: string; cssVar: string }[] 
   { key: 'colorAcc3',label: 'Cor 3',  cssVar: '--acc-3' },
 ]
 
-const FONT_OPTIONS = [
-  { key: 'newsreader', label: 'Newsreader',         cssVar: '--font-newsreader', fallback: 'Georgia, serif'        },
-  { key: 'playfair',   label: 'Playfair Display',   cssVar: '--font-playfair',   fallback: 'Georgia, serif'        },
-  { key: 'cormorant',  label: 'Cormorant Garamond', cssVar: '--font-cormorant',  fallback: 'Georgia, serif'        },
-  { key: 'lora',       label: 'Lora',               cssVar: '--font-lora',       fallback: 'Georgia, serif'        },
-  { key: 'hanken',     label: 'Hanken Grotesk',     cssVar: '--font-hanken',     fallback: 'system-ui, sans-serif' },
-  { key: 'inter',      label: 'Inter',              cssVar: '--font-inter',      fallback: 'system-ui, sans-serif' },
-  { key: 'dm-sans',    label: 'DM Sans',            cssVar: '--font-dm-sans',    fallback: 'system-ui, sans-serif' },
-  { key: 'jakarta',    label: 'Plus Jakarta Sans',  cssVar: '--font-jakarta',    fallback: 'system-ui, sans-serif' },
-] as const
+const FONT_OPTIONS = (Object.entries(FONT_REGISTRY) as [FontKey, typeof FONT_REGISTRY[FontKey]][]).map(
+  ([key, { cssVar, fallback, label }]) => ({ key, cssVar, fallback, label })
+)
 
 function card(extra?: React.CSSProperties): React.CSSProperties {
   return { background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 12, padding: 'clamp(16px,3vw,24px)', ...extra }
@@ -307,7 +301,7 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
   }
 
   /* ── apply font (live preview) ── */
-  const applyFont = (profileKey: 'fontDisplay' | 'fontSubtitle' | 'fontBody', cssVar: string, fontKey: string) => {
+  const applyFont = (profileKey: 'fontDisplay' | 'fontSubtitle' | 'fontBody', cssVar: string, fontKey: FontKey) => {
     setProfile((p) => ({ ...p, [profileKey]: fontKey }))
     const opt = FONT_OPTIONS.find((f) => f.key === fontKey)
     if (opt) {
@@ -319,7 +313,7 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
   const saveFonts = useCallback(async () => {
     startSec('fonts')
     try {
-      await fetch('/api/admin/artist-profile/meta', {
+      const res = await fetch('/api/admin/artist-profile/meta', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -328,6 +322,7 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
           fontBody:     profile.fontBody,
         }),
       })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       endSec('fonts', 'Fontes salvas!')
       router.refresh()
     } catch {
@@ -447,7 +442,7 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
                   return (
                     <button
                       key={opt.key}
-                      onClick={() => applyFont(profileKey, cssVar, opt.key)}
+                      onClick={() => applyFont(profileKey, cssVar, opt.key as FontKey)}
                       style={{
                         fontFamily: `var(${opt.cssVar}), ${opt.fallback}`,
                         padding: '10px 14px',
