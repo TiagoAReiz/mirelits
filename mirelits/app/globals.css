@@ -12,6 +12,7 @@
   --acc-1-ink: oklch(0.40 0.13 45);
 
   --ff-display: var(--font-newsreader), Georgia, serif;
+  --ff-subtitle: var(--font-newsreader), Georgia, serif;
   --ff-body:    var(--font-hanken), system-ui, sans-serif;
   --ff-mono:    var(--font-mono), ui-monospace, monospace;
 
@@ -46,6 +47,7 @@ img { display: block; max-width: 100%; }
 /* ---------- atoms ---------- */
 .mono  { font-family: var(--ff-mono); }
 .serif { font-family: var(--ff-display); font-weight: 400; }
+h2.serif, h3.serif { font-family: var(--ff-subtitle); }
 .ital  { font-style: italic; }
 
 .label {
