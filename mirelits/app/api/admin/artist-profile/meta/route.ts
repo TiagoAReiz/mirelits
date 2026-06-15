@@ -1,11 +1,6 @@
 import { requireAuth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-/**
- * PATCH /api/admin/artist-profile/meta
- * Updates extra fields not covered by the multipart PUT:
- * handle, tagline, location, email, profileHue, colors
- */
 const ID = 'singleton'
 
 export async function PUT(req: Request) {
@@ -13,9 +8,12 @@ export async function PUT(req: Request) {
   if (error) return error
 
   const body = await req.json()
-  const { handle, tagline, location, email, profileHue, profilePhotoUrl, colorBg, colorInk, colorAcc1, colorAcc2, colorAcc3 } = body
+  const {
+    handle, tagline, location, email, profileHue, profilePhotoUrl,
+    colorBg, colorInk, colorAcc1, colorAcc2, colorAcc3,
+    fontDisplay, fontSubtitle, fontBody,
+  } = body
 
-  // Consolidate database by removing any duplicate profile records without the 'singleton' ID
   await prisma.artistProfile.deleteMany({
     where: { id: { not: ID } },
   })
@@ -34,6 +32,9 @@ export async function PUT(req: Request) {
       colorAcc1: colorAcc1 ?? null,
       colorAcc2: colorAcc2 ?? null,
       colorAcc3: colorAcc3 ?? null,
+      fontDisplay: fontDisplay ?? null,
+      fontSubtitle: fontSubtitle ?? null,
+      fontBody: fontBody ?? null,
     },
     update: {
       ...(handle !== undefined && { handle }),
@@ -47,6 +48,9 @@ export async function PUT(req: Request) {
       ...(colorAcc1 !== undefined && { colorAcc1 }),
       ...(colorAcc2 !== undefined && { colorAcc2 }),
       ...(colorAcc3 !== undefined && { colorAcc3 }),
+      ...(fontDisplay !== undefined && { fontDisplay }),
+      ...(fontSubtitle !== undefined && { fontSubtitle }),
+      ...(fontBody !== undefined && { fontBody }),
     },
   })
 
