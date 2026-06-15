@@ -607,9 +607,6 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
               <div key={s.id} {...sdProps(i)}
                 style={{ display: 'flex', gap: 10, alignItems: 'center', padding: 10, borderRadius: 8, border: `1px solid ${sdOver === i ? 'var(--acc-1)' : 'var(--line)'}`, background: 'var(--bg)', cursor: 'grab', flexWrap: 'wrap' }}>
                 <span className="mono" style={{ cursor: 'grab', color: 'var(--ink-faint)', fontSize: 16 }}>⠿</span>
-                <span style={{ color: 'var(--acc-1)', display: 'flex', flexShrink: 0 }}>
-                  <SocialIcon platform={s.platform} size={20} />
-                </span>
                 <div style={{ width: 160, flexShrink: 0 }}>
                   <CustomSelect
                     value={s.platform}
