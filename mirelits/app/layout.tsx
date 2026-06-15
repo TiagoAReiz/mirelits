@@ -5,6 +5,7 @@ import {
   Inter, DM_Sans, Plus_Jakarta_Sans,
 } from 'next/font/google'
 import { prisma } from '@/lib/prisma'
+import { FONT_REGISTRY, type FontKey } from '@/lib/font-registry'
 import { AuthProvider } from '@/components/auth-provider'
 import './globals.css'
 
@@ -48,21 +49,10 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-const FONT_STACK: Record<string, { cssVar: string; fallback: string }> = {
-  newsreader: { cssVar: '--font-newsreader', fallback: 'Georgia, serif' },
-  playfair:   { cssVar: '--font-playfair',   fallback: 'Georgia, serif' },
-  cormorant:  { cssVar: '--font-cormorant',  fallback: 'Georgia, serif' },
-  lora:       { cssVar: '--font-lora',       fallback: 'Georgia, serif' },
-  hanken:     { cssVar: '--font-hanken',     fallback: 'system-ui, sans-serif' },
-  inter:      { cssVar: '--font-inter',      fallback: 'system-ui, sans-serif' },
-  'dm-sans':  { cssVar: '--font-dm-sans',    fallback: 'system-ui, sans-serif' },
-  jakarta:    { cssVar: '--font-jakarta',    fallback: 'system-ui, sans-serif' },
-}
-
 function resolveFont(key: string | null | undefined): string | null {
-  if (!key) return null
-  const entry = FONT_STACK[key]
-  return entry ? `var(${entry.cssVar}), ${entry.fallback}` : null
+  if (!key || !(key in FONT_REGISTRY)) return null
+  const entry = FONT_REGISTRY[key as FontKey]
+  return `var(${entry.cssVar}), ${entry.fallback}`
 }
 
 async function getTheme() {
