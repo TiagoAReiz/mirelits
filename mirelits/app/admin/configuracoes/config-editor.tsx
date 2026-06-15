@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { SocialIcon, SOCIAL_PLATFORMS } from '@/components/social-icon'
 import { FONT_REGISTRY, type FontKey } from '@/lib/font-registry'
+import { CustomSelect } from '@/components/custom-select'
 
 /* ── types ── */
 interface ProfileData {
@@ -427,48 +428,28 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
           <h2 className="serif" style={{ fontSize: 22, margin: '0 0 4px', fontWeight: 500 }}>Fontes do site</h2>
           <p style={{ fontSize: 13.5, color: 'var(--ink-soft)', margin: '0 0 20px' }}>Muda em tempo real no site após salvar.</p>
 
-          {(
-            [
-              { label: 'TÍTULOS',    profileKey: 'fontDisplay'  as const, cssVar: '--ff-display',  defaultKey: 'newsreader' },
-              { label: 'SUBTÍTULOS', profileKey: 'fontSubtitle' as const, cssVar: '--ff-subtitle', defaultKey: 'newsreader' },
-              { label: 'CORPO',      profileKey: 'fontBody'     as const, cssVar: '--ff-body',     defaultKey: 'hanken'     },
-            ] as const
-          ).map(({ label, profileKey, cssVar, defaultKey }) => (
-            <div key={profileKey} style={{ marginBottom: 20 }}>
-              <span className="label" style={{ display: 'block', marginBottom: 10 }}>{label}</span>
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                {FONT_OPTIONS.map((opt) => {
-                  const active = (profile[profileKey] ?? defaultKey) === opt.key
-                  return (
-                    <button
-                      key={opt.key}
-                      onClick={() => applyFont(profileKey, cssVar, opt.key as FontKey)}
-                      style={{
-                        fontFamily: `var(${opt.cssVar}), ${opt.fallback}`,
-                        padding: '10px 14px',
-                        borderRadius: 10,
-                        border: `2px solid ${active ? 'var(--acc-1)' : 'var(--line)'}`,
-                        background: active
-                          ? 'color-mix(in oklch, var(--acc-1) 8%, var(--paper))'
-                          : 'var(--paper)',
-                        cursor: 'pointer',
-                        minWidth: 110,
-                        textAlign: 'left' as const,
-                        transition: 'border-color .15s, background .15s',
-                      }}
-                    >
-                      <div style={{ fontSize: 18, fontWeight: 400, color: 'var(--ink)', lineHeight: 1.2 }}>
-                        {opt.label}
-                      </div>
-                      <div style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--ink-soft)', marginTop: 3 }}>
-                        Aa
-                      </div>
-                    </button>
-                  )
-                })}
+          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+            {(
+              [
+                { label: 'TÍTULOS',    profileKey: 'fontDisplay'  as const, cssVar: '--ff-display',  defaultKey: 'newsreader' },
+                { label: 'SUBTÍTULOS', profileKey: 'fontSubtitle' as const, cssVar: '--ff-subtitle', defaultKey: 'newsreader' },
+                { label: 'CORPO',      profileKey: 'fontBody'     as const, cssVar: '--ff-body',     defaultKey: 'hanken'     },
+              ] as const
+            ).map(({ label, profileKey, cssVar, defaultKey }) => (
+              <div key={profileKey} style={{ flex: '1 1 160px', minWidth: 160 }}>
+                <span className="label" style={{ display: 'block', marginBottom: 8 }}>{label}</span>
+                <CustomSelect
+                  value={profile[profileKey] ?? defaultKey}
+                  onChange={(val) => applyFont(profileKey, cssVar, val as FontKey)}
+                  options={FONT_OPTIONS.map((f) => ({
+                    value: f.key,
+                    label: f.label,
+                    style: { fontFamily: `var(${f.cssVar}), ${f.fallback}` },
+                  }))}
+                />
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <SaveRow state={sec.fonts} onSave={saveFonts} label="Salvar fontes" />
         </section>
@@ -629,11 +610,20 @@ export function ConfigEditor({ profile: initProfile, timeline: initTimeline, soc
                 <span style={{ color: 'var(--acc-1)', display: 'flex', flexShrink: 0 }}>
                   <SocialIcon platform={s.platform} size={20} />
                 </span>
-                <select className="field" style={{ width: 140, padding: '8px 10px', fontSize: 13 }}
-                  value={s.platform}
-                  onChange={(e) => updateSocial(s.id, { platform: e.target.value, label: SOCIAL_PLATFORMS.find(p => p.value === e.target.value)?.label ?? s.label })}>
-                  {SOCIAL_PLATFORMS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
-                </select>
+                <div style={{ width: 160, flexShrink: 0 }}>
+                  <CustomSelect
+                    value={s.platform}
+                    onChange={(val) => updateSocial(s.id, {
+                      platform: val,
+                      label: SOCIAL_PLATFORMS.find((p) => p.value === val)?.label ?? s.label,
+                    })}
+                    options={SOCIAL_PLATFORMS.map((p) => ({
+                      value: p.value,
+                      label: p.label,
+                      icon: <SocialIcon platform={p.value} size={16} />,
+                    }))}
+                  />
+                </div>
                 <input className="field" style={{ width: 130, padding: '8px 10px', fontSize: 13 }}
                   placeholder="Rótulo" value={s.label}
                   onChange={(e) => updateSocial(s.id, { label: e.target.value })} />
