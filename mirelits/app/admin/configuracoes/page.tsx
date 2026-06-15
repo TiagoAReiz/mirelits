@@ -21,6 +21,7 @@ const DEFAULT_PROFILE = {
   email: 'ola@mirelits.com', shortBio: '', fullBio: '',
   profileHue: 'laranja', profilePhotoUrl: null,
   colorBg: null, colorInk: null, colorAcc1: null, colorAcc2: null, colorAcc3: null,
+  fontDisplay: null, fontSubtitle: null, fontBody: null,
 }
 
 export default async function ConfiguracoesPage() {
@@ -42,14 +43,14 @@ export default async function ConfiguracoesPage() {
     colorAcc1: profile?.colorAcc1 ?? null,
     colorAcc2: profile?.colorAcc2 ?? null,
     colorAcc3: profile?.colorAcc3 ?? null,
+    fontDisplay:  profile?.fontDisplay  ?? null,
+    fontSubtitle: profile?.fontSubtitle ?? null,
+    fontBody:     profile?.fontBody     ?? null,
   }
 
   const timelineData = timeline.map((t) => ({
-    id: t.id,
-    year: t.year,
-    title: t.title,
-    description: t.description ?? null,
-    position: t.position,
+    id: t.id, year: t.year, title: t.title,
+    description: t.description ?? null, position: t.position,
   }))
 
   return (
