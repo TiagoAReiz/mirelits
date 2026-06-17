@@ -9,7 +9,7 @@
 
 Adicionar 3 slots de fonte configuráveis pelo admin (Títulos, Subtítulos, Corpo), com prévia visual no painel de configurações. O painel admin herda as fontes escolhidas automaticamente, igual ao comportamento já existente para cores.
 
----
+---a
 
 ## Slots e fontes disponíveis
 
