@@ -11,22 +11,38 @@ interface PhProps {
   showCap?: boolean
   angle?: number
   fill?: boolean
+  natural?: boolean
   sizes?: string
 }
 
-export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {}, showCap = true, angle, fill, sizes = '(max-width: 760px) 100vw, 50vw' }: PhProps) {
+export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {}, showCap = true, angle, fill, natural, sizes = '(max-width: 760px) 100vw, 50vw' }: PhProps) {
   const h = HUES[hue] ?? HUES.pedra
 
   const st: React.CSSProperties = {
     '--ph-base': h.base,
     '--ph-stripe': h.stripe,
     ...(angle != null ? { '--ph-angle': `${angle}deg` } : {}),
-    ...(ratio != null && !fill ? { aspectRatio: `1 / ${ratio}` } : {}),
+    ...(ratio != null && !fill && !natural ? { aspectRatio: `1 / ${ratio}` } : {}),
     ...(fill ? { position: 'absolute', inset: 0, width: '100%', height: '100%' } : {}),
     ...style,
   } as React.CSSProperties
 
   if (src) {
+    if (natural) {
+      return (
+        <div className={`ph ${className}`} style={st}>
+          <Image
+            src={src}
+            alt={cap ?? ''}
+            width={1000}
+            height={Math.round(1000 * (ratio ?? 1))}
+            sizes={sizes}
+            style={{ width: '100%', height: 'auto', position: 'relative', zIndex: 1, display: 'block' }}
+          />
+        </div>
+      )
+    }
+
     return (
       <div className={`ph ${className}`} style={st}>
         <Image
