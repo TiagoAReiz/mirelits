@@ -192,32 +192,22 @@ select.field   { appearance: none; cursor: pointer; }
   border-radius: var(--radius);
   overflow: hidden;
 }
-.pcard__cap {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 2;
-  padding: 40px 12px 12px;
-  background: linear-gradient(to top, oklch(0.08 0 0 / .78) 0%, transparent 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  opacity: 0;
-  transition: opacity .22s ease;
-}
-.pcard:hover .pcard__cap { opacity: 1; }
-.pcard__cat {
-  font-family: var(--ff-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6);
-}
 .pcard__title {
   font-family: var(--ff-display);
   font-size: clamp(14px, 1.8vw, 18px);
   font-weight: 400;
   line-height: 1.2;
   color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+.pcard__meta {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.65);
+  margin-top: 4px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.5);
 }
 .pcard__pin {
   position: absolute; top: 10px; left: 10px; z-index: 3;
@@ -244,6 +234,14 @@ select.field   { appearance: none; cursor: pointer; }
     transform: translateX(var(--dx)) translateY(calc(-1 * var(--dy))) rotate(var(--dr));
   }
   .pcard--deck:hover .pcard__img { transform: translateY(-12px) rotate(-4deg); }
+  .pcard--deck:hover .pcard__img::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: oklch(0.1 0 0 / .52);
+    z-index: 2;
+    border-radius: var(--radius);
+  }
+  .pcard--deck:hover .pcard__hover-cap { opacity: 1; }
 
   .pcard--dark:hover .pcard__img::after {
     content: '';
