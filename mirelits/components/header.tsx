@@ -1,8 +1,8 @@
 'use client'
 
+import { useRef, useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
 import { Avatar } from './avatar'
 import { SocialIcon } from './social-icon'
 
@@ -32,6 +32,19 @@ const MAX_ICONS = 3
 export function Header({ profile }: { profile: HeaderProfile }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const navRef = useRef<HTMLElement>(null)
+  const [bar, setBar] = useState({ left: 0, width: 0, ready: false })
+
+  useEffect(() => {
+    const nav = navRef.current
+    if (!nav) return
+    const active = nav.querySelector('[data-active="true"]') as HTMLElement | null
+    if (!active) { setBar(b => ({ ...b, ready: false })); return }
+    const navRect = nav.getBoundingClientRect()
+    const linkRect = active.getBoundingClientRect()
+    setBar({ left: linkRect.left - navRect.left, width: linkRect.width, ready: true })
+  }, [pathname])
+
   const links = profile.socialLinks ?? []
   const visibleLinks = links.slice(0, MAX_ICONS)
   const overflow = links.length - MAX_ICONS
@@ -60,16 +73,23 @@ export function Header({ profile }: { profile: HeaderProfile }) {
         </Link>
 
         {/* desktop nav */}
-        <nav style={{ display: 'none', alignItems: 'center', gap: 26 }} className="nav-desk">
+        <nav
+          ref={navRef}
+          style={{ display: 'none', alignItems: 'center', gap: 26, position: 'relative', alignSelf: 'stretch' }}
+          className="nav-desk"
+        >
           {LINKS.map((l) => {
             const active = l.match(pathname)
             return (
-              <Link key={l.href} href={l.href} className="mono" style={{
-                fontSize: 13, letterSpacing: '0.04em', padding: '6px 2px',
-                color: active ? 'var(--ink)' : 'var(--ink-soft)',
-                borderBottom: `2px solid ${active ? 'var(--acc-1)' : 'transparent'}`,
-                transition: 'color .2s, border-color .2s',
-              }}>
+              <Link key={l.href} href={l.href} className="mono"
+                data-active={active ? 'true' : undefined}
+                style={{
+                  fontSize: 13, letterSpacing: '0.04em', padding: '6px 2px',
+                  color: active ? 'var(--ink)' : 'var(--ink-soft)',
+                  transition: 'color .2s',
+                  display: 'inline-flex', alignItems: 'center',
+                }}
+              >
                 {l.label}
               </Link>
             )
@@ -78,7 +98,6 @@ export function Header({ profile }: { profile: HeaderProfile }) {
             Propor projeto
           </Link>
 
-          {/* social icons */}
           {links.length > 0 && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 10, paddingLeft: 14, borderLeft: '1px solid var(--line)' }}>
               {visibleLinks.map((sl) => (
@@ -101,6 +120,23 @@ export function Header({ profile }: { profile: HeaderProfile }) {
               )}
             </div>
           )}
+
+          {/* sliding indicator */}
+          <span
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              bottom: 0,
+              left: bar.left,
+              width: bar.width,
+              height: 2,
+              background: 'var(--acc-1)',
+              borderRadius: 1,
+              opacity: bar.ready ? 1 : 0,
+              transition: 'left 0.25s cubic-bezier(.2,.7,.2,1), width 0.25s cubic-bezier(.2,.7,.2,1), opacity 0.15s',
+              pointerEvents: 'none',
+            }}
+          />
         </nav>
 
         {/* mobile burger */}
