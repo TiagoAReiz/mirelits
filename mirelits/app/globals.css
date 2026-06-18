@@ -292,6 +292,7 @@ select.field   { appearance: none; cursor: pointer; }
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .route { animation: none; }
+  .skel { animation: none; }
   * { scroll-behavior: auto !important; }
   .pcard__deck,
   .pcard__img { transition: none !important; }
