@@ -72,6 +72,7 @@ export function ProjectCard({
           src={cover?.url}
           hue={cover?.hue ?? 'pedra'}
           ratio={cover?.ratio ?? 1.4}
+          natural
           style={{ width: '100%' }}
         />
 
