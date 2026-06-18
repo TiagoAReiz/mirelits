@@ -23,7 +23,7 @@ export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {},
     '--ph-stripe': h.stripe,
     ...(angle != null ? { '--ph-angle': `${angle}deg` } : {}),
     ...(ratio != null && !fill && !natural ? { aspectRatio: `1 / ${ratio}` } : {}),
-    ...(fill ? { position: 'absolute', inset: 0, width: '100%', height: '100%' } : {}),
+    ...(fill && !natural ? { position: 'absolute', inset: 0, width: '100%', height: '100%' } : {}),
     ...style,
   } as React.CSSProperties
 
@@ -35,10 +35,11 @@ export function Ph({ hue = 'pedra', ratio, cap, src, className = '', style = {},
             src={src}
             alt={cap ?? ''}
             width={1000}
-            height={Math.round(1000 * (ratio ?? 1))}
+            height={Math.round(1000 * (ratio || 1))}
             sizes={sizes}
             style={{ width: '100%', height: 'auto', position: 'relative', zIndex: 1, display: 'block' }}
           />
+          {showCap && cap ? <span className="ph-cap">{cap}</span> : null}
         </div>
       )
     }
