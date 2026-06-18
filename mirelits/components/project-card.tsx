@@ -30,6 +30,7 @@ interface ProjectCardProps {
 export function ProjectCard({
   id,
   title,
+  subtitle,
   category,
   pinned,
   pinLabel,
@@ -76,19 +77,25 @@ export function ProjectCard({
           style={{ width: '100%' }}
         />
 
-        {/* deck: always-visible overlay caption at bottom */}
         {hoverStyle === 'deck' && (
-          <div className="pcard__cap">
-            {category && <span className="pcard__cat">{category}</span>}
-            <span className="pcard__title">{title}</span>
+          <div className="pcard__hover-cap">
+            <div className="pcard__title">{title}</div>
+            {(category || subtitle) && (
+              <div className="pcard__meta">
+                {[category, subtitle].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </div>
         )}
 
-        {/* dark: caption appears on hover */}
         {hoverStyle === 'dark' && (
           <div className="pcard__hover-cap">
-            <div className="label" style={{ color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>{category}</div>
-            <div className="serif" style={{ fontSize: 'clamp(15px, 2vw, 20px)' }}>{title}</div>
+            <div className="pcard__title">{title}</div>
+            {(category || subtitle) && (
+              <div className="pcard__meta">
+                {[category, subtitle].filter(Boolean).join(' · ')}
+              </div>
+            )}
           </div>
         )}
       </div>
