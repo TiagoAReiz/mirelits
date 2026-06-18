@@ -219,7 +219,10 @@ select.field   { appearance: none; cursor: pointer; }
 
 /* deck layers */
 .pcard__deck {
-  position: absolute; left: 0; right: 0; bottom: 0;
+  position: absolute; bottom: 0; left: 0;
+  height: 85%;
+  width: auto;
+  max-width: 100%;
   aspect-ratio: 1 / var(--photo-ratio, 1.4);
   border-radius: var(--radius); overflow: hidden;
   transform-origin: center bottom;
