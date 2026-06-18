@@ -223,10 +223,13 @@ select.field   { appearance: none; cursor: pointer; }
   aspect-ratio: 1 / var(--photo-ratio, 1.4);
   border-radius: var(--radius); overflow: hidden;
   transform-origin: center bottom;
-  transition: transform .45s cubic-bezier(.2,.7,.2,1), opacity .3s;
+  transition:
+    transform .6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity .35s ease;
+  transition-delay: calc(var(--i, 0) * 35ms);
   opacity: 0; z-index: -1;
 }
-.pcard__img { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+.pcard__img { transition: transform .5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 
 @media (hover: hover) {
   .pcard--deck:hover { z-index: 10; }

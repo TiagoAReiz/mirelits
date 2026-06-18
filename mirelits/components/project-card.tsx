@@ -51,7 +51,7 @@ export function ProjectCard({
           <div
             key={photo.id}
             className="pcard__deck"
-            style={{ '--dx': s.dx, '--dy': s.dy, '--dr': s.dr, '--photo-ratio': photo.ratio ?? 1.4 } as React.CSSProperties}
+            style={{ '--dx': s.dx, '--dy': s.dy, '--dr': s.dr, '--photo-ratio': photo.ratio ?? 1.4, '--i': i } as React.CSSProperties}
           >
             <Ph
               src={photo.url}
