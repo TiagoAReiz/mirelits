@@ -282,6 +282,13 @@ select.field   { appearance: none; cursor: pointer; }
 .admin-tab--active { color: white; border-bottom-color: var(--acc-1); }
 .admin-main { flex: 1; padding-block: 36px; }
 
+/* ---------- skeleton ---------- */
+.skel {
+  background: var(--line);
+  border-radius: 4px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
 /* ---------- reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   .route { animation: none; }
