@@ -1,6 +1,4 @@
 import { prisma } from '@/lib/prisma'
-import { Header } from '@/components/header'
-import { Footer } from '@/components/footer'
 import { Avatar } from '@/components/avatar'
 import { SectionLabel } from '@/components/section-label'
 import { SocialIcon } from '@/components/social-icon'
@@ -50,18 +48,7 @@ export default async function SobrePage() {
   const fullBio = profile?.fullBio ?? ''
 
   return (
-    <>
-      <Header
-        profile={{
-          name,
-          tagline,
-          profileHue: profile?.profileHue ?? 'laranja',
-          profilePhotoUrl: profile?.profilePhotoUrl,
-          socialLinks,
-        }}
-      />
-
-      <main style={{ flex: 1 }}>
+    <main style={{ flex: 1 }}>
         <div className="wrap route" style={{ paddingTop: 'clamp(36px,6vw,68px)' }}>
           <div style={{ display: 'grid', gap: 'clamp(28px,5vw,56px)', gridTemplateColumns: '1fr' }} className="about-grid">
             <div>
@@ -169,8 +156,6 @@ export default async function SobrePage() {
         </div>
       </main>
 
-      <Footer profile={{ name, profileHue: profile?.profileHue ?? 'laranja', profilePhotoUrl: profile?.profilePhotoUrl }} />
-
       <style>{`
         @media (min-width: 820px) {
           .about-grid { grid-template-columns: 1fr auto !important; align-items: start; }
@@ -190,6 +175,6 @@ export default async function SobrePage() {
           }
         }
       `}</style>
-    </>
+    </main>
   )
 }
