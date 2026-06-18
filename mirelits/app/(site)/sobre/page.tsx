@@ -154,7 +154,6 @@ export default async function SobrePage() {
             <a href="/contato" className="btn">Propor um projeto</a>
           </div>
         </div>
-      </main>
 
       <style>{`
         @media (min-width: 820px) {
