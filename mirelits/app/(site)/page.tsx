@@ -111,6 +111,7 @@ export default async function Home() {
               key={p.id}
               id={p.id}
               title={p.title}
+              subtitle={p.subtitle}
               category={p.category}
               pinned={p.pinned}
               pinLabel={p.pinLabel}
