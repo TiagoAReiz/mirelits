@@ -219,7 +219,8 @@ select.field   { appearance: none; cursor: pointer; }
 
 /* deck layers */
 .pcard__deck {
-  position: absolute; inset: 0;
+  position: absolute; left: 0; right: 0; bottom: 0;
+  aspect-ratio: 1 / var(--photo-ratio, 1.4);
   border-radius: var(--radius); overflow: hidden;
   transform-origin: center bottom;
   transition: transform .45s cubic-bezier(.2,.7,.2,1), opacity .3s;

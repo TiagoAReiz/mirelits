@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hover comparison</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f5f0eb;
+    font-family: 'Georgia', serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    gap: 40px;
+  }
+  h1 {
+    font-size: 15px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #888;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: #aaa;
+    text-align: center;
+    margin-top: -30px;
+  }
+
+  .cards {
+    display: flex;
+    gap: 48px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .card-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+  }
+  .card-wrap.selected .label-tag {
+    background: #c0532a;
+    color: white;
+  }
+  .label-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 999px;
+    background: #e0d8d0;
+    color: #666;
+    transition: background .2s, color .2s;
+    border: none;
+    cursor: pointer;
+  }
+  .option-name {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #999;
+    text-align: center;
+  }
+
+  /* ── CARD BASE ── */
+  .card {
+    width: 260px;
+    position: relative;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: visible;
+  }
+
+  /* deck layers */
+  .deck-photo {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    transform-origin: center bottom;
+    transition: transform .45s cubic-bezier(.2,.7,.2,1), opacity .3s;
+    opacity: 0;
+    z-index: -1;
+  }
+  .deck-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* cover wrapper */
+  .cover {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform .35s cubic-bezier(.2,.7,.2,1);
+    z-index: 1;
+  }
+  .cover img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── OPTION A: reveal below ── */
+  .card-a .cover { transition: transform .35s cubic-bezier(.2,.7,.2,1); }
+  .card-a:hover .cover { transform: translateY(-14px) rotate(-4deg); }
+  .card-a:hover .deck-photo { opacity: 1; }
+  .card-a:hover .deck-1 { transform: translateX(-58px) translateY(-18px) rotate(-17deg); }
+  .card-a:hover .deck-2 { transform: translateX(56px) translateY(-12px) rotate(15deg); }
+
+  .card-a .info-below {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 14px 16px;
+    transform: translateY(0);
+    opacity: 0;
+    transition: opacity .3s .05s;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .card-a:hover .info-below { opacity: 1; }
+  .info-below .title {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #1a1410;
+    line-height: 1.15;
+  }
+  .info-below .meta {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* ── OPTION C: floating text, no bg ── */
+  .card-c:hover .cover { transform: translateY(-12px) rotate(-4deg); }
+  .card-c:hover .deck-photo { opacity: 1; }
+  .card-c:hover .deck-1 { transform: translateX(-58px) translateY(-18px) rotate(-17deg); }
+  .card-c:hover .deck-2 { transform: translateX(56px) translateY(-12px) rotate(15deg); }
+
+  .card-c .cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: oklch(0.08 0 0 / 0);
+    transition: background .3s;
+    z-index: 1;
+    border-radius: 10px;
+  }
+  .card-c:hover .cover::after {
+    background: oklch(0.08 0 0 / .52);
+  }
+
+  .card-c .floating-cap {
+    position: absolute;
+    bottom: 20px; left: 16px; right: 16px;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity .25s;
+    pointer-events: none;
+  }
+  .card-c:hover .floating-cap { opacity: 1; }
+  .floating-cap .title {
+    font-family: 'Georgia', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: rgba(255,255,255,.95);
+    line-height: 1.15;
+    text-shadow: 0 2px 12px rgba(0,0,0,.5);
+  }
+  .floating-cap .meta {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.65);
+    margin-top: 5px;
+    text-shadow: 0 1px 6px rgba(0,0,0,.4);
+  }
+
+  /* ── PIN badge ── */
+  .pin {
+    position: absolute;
+    top: 10px; left: 10px; z-index: 3;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    background: #c0532a;
+    color: white;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+
+  .verdict {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.7;
+  }
+  .verdict strong { color: #555; }
+
+  .select-btn {
+    margin-top: 4px;
+    padding: 8px 22px;
+    border-radius: 999px;
+    border: 1.5px solid #ccc;
+    background: transparent;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #777;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, color .2s;
+  }
+  .select-btn:hover { border-color: #c0532a; color: #c0532a; }
+  .card-wrap.selected .select-btn {
+    background: #c0532a; border-color: #c0532a; color: white;
+  }
+</style>
+</head>
+<body>
+
+<h1>Hover — opção A vs C</h1>
+<p class="subtitle">Passa o rato por cima de cada card para sentir o efeito</p>
+
+<div class="cards">
+
+  <!-- OPTION A -->
+  <div class="card-wrap" id="wrap-a" onclick="selectOption('a')">
+    <div class="option-name">A — Revela abaixo</div>
+
+    <div class="card card-a">
+      <!-- deck layers -->
+      <div class="deck-photo deck-1">
+        <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&q=60" alt="">
+      </div>
+      <div class="deck-photo deck-2">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=60" alt="">
+      </div>
+
+      <!-- text that reveals below the lifted cover -->
+      <div class="info-below">
+        <div class="title">Livro infantil</div>
+        <div class="meta">Ilustração editorial · Projeto autoral</div>
+      </div>
+
+      <!-- cover -->
+      <div class="cover">
+        <span class="pin">Destaque</span>
+        <img src="https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=400&q=70" alt="Capa do projeto">
+      </div>
+    </div>
+
+    <button class="select-btn" onclick="event.stopPropagation(); selectOption('a')">Escolher A</button>
+  </div>
+
+  <!-- OPTION C -->
+  <div class="card-wrap" id="wrap-c" onclick="selectOption('c')">
+    <div class="option-name">C — Texto flutuante</div>
+
+    <div class="card card-c">
+      <!-- deck layers -->
+      <div class="deck-photo deck-1">
+        <img src="https://images.unsplash.com/photo-1541963463532-d68292c34b19?w=400&q=60" alt="">
+      </div>
+      <div class="deck-photo deck-2">
+        <img src="https://images.unsplash.com/photo-1513364776144-60967b0f800f?w=400&q=60" alt="">
+      </div>
+
+      <!-- cover with overlay + floating caption -->
+      <div class="cover">
+        <span class="pin">Destaque</span>
+        <img src="https://images.unsplash.com/photo-1578926288207-a90a5366759d?w=400&q=70" alt="Capa do projeto">
+        <div class="floating-cap">
+          <div class="title">Livro infantil</div>
+          <div class="meta">Ilustração editorial · Projeto autoral</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="select-btn" onclick="event.stopPropagation(); selectOption('c')">Escolher C</button>
+  </div>
+
+</div>
+
+<p class="verdict">
+  <strong>A</strong> — a imagem levanta e o texto aparece "por baixo", sem qualquer escurecimento.<br>
+  <strong>C</strong> — overlay escuro suave + texto branco flutuante com text-shadow, sem barra de fundo.
+</p>
+
+<script>
+function selectOption(choice) {
+  document.querySelectorAll('.card-wrap').forEach(w => w.classList.remove('selected'));
+  document.getElementById('wrap-' + choice).classList.add('selected');
+  // record for Claude
+  try {
+    fetch('/__brainstorm_event', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({type:'click', choice, text: choice === 'a' ? 'Option A - Revela abaixo' : 'Option C - Texto flutuante', timestamp: Date.now()})
+    });
+  } catch(e) {}
+}
+</script>
+</body>
+</html>
