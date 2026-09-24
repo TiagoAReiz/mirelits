@@ -54,7 +54,7 @@ cd mirelits
 npm install
 cp .env.example .env.local   # preencha os valores
 npx prisma generate
-npx prisma db push           # cria as tabelas no banco
+npm run db:push              # cria/atualiza as tabelas no banco (manual, fora do deploy)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -81,7 +81,7 @@ Na Vercel as variáveis ficam no painel do projeto; `vercel env pull` sincroniza
 npm run dev     # servidor de desenvolvimento
 npm test        # testes (Vitest)
 npm run lint    # ESLint
-npm run build   # prisma generate + prisma db push + next build (usado no deploy)
+npm run build   # prisma generate + next build (usado no deploy; não altera o banco)
 ```
 
 > O `build` aplica o schema do Prisma ao banco configurado — rode-o apenas com credenciais do ambiente certo.
